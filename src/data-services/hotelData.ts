@@ -162,6 +162,35 @@ return availableHotels;
   }
 }
 
+async getHotelDetailsById(hotelId: string) {
+  try {
+    console.log("hotelId", hotelId);
+    // @ts-ignore
+    const hotelNormalDetails = await this.client.referenceData.locations.hotels.byHotels.get({hotelIds: hotelId})
+    
+    console.log("hotelNormalDetails", hotelNormalDetails);
+    // @ts-ignore
+
+    const offersRes = await this.client.shopping.hotelOffersSearch.get({
+                hotelIds: hotelId,
+      }); 
+      console.log("offer?.offers?.[0]", offersRes);
+      
+
+      return {
+        ...hotelNormalDetails.data[0],
+        offer: offersRes?.data[0]?.offers?.[0]
+      }
+
+    
+  } catch (err: any) {
+    console.error("Amadeus API Error:", err.response?.result || err);
+    return [];
+  }
+}
+
+
+
 
   // 📍 Get hotels by lat/lon
   async getHotelsByGeo(lat: number, lon: number, radius: number = 10, limit: number = 10) {

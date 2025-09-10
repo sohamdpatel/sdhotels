@@ -41,7 +41,7 @@ export default function SearchBar() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter()
+  const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(searchSchema),
     defaultValues: {
@@ -52,31 +52,27 @@ export default function SearchBar() {
   });
   // 🔎 fetch cities (from Amadeus)
   const fetchCitySuggestions = async (query: string) => {
-  if (query.length < 2) {
-    setSuggestions([]);
-    return;
-  }
+    if (query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
 
-  setLoading(true);
-  try {
-    const results = await hotelService.getCitySuggestions(query);
-    console.log("suggestion from searchbar", results);
-    
-    setSuggestions(results); 
-  } catch (err) {
-    console.error("Error fetching suggestions:", err);
-    setSuggestions([]);
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      const results = await hotelService.getCitySuggestions(query);
+      console.log("suggestion from searchbar", results);
 
+      setSuggestions(results);
+    } catch (err) {
+      console.error("Error fetching suggestions:", err);
+      setSuggestions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 🕒 debounce the fetcher (500ms)
-  const debouncedFetch = useMemo(
-    () => debounce(fetchCitySuggestions, 500),
-    []
-  );
+  const debouncedFetch = useMemo(() => debounce(fetchCitySuggestions, 500), []);
 
   const onSubmit = (data: FormData) => {
     const params = new URLSearchParams({
@@ -114,9 +110,8 @@ export default function SearchBar() {
                         className="border-none shadow-none p-0 focus-visible:ring-0 md:text-md"
                         {...field}
                         onChange={(e) => {
-                          
                           field.onChange(e.target.value);
-                          debouncedFetch(e.target.value); 
+                          debouncedFetch(e.target.value);
                         }}
                         autoComplete="off"
                       />
@@ -152,66 +147,89 @@ export default function SearchBar() {
 
               {/* Dates */}
               <FormField
-  control={form.control}
-  name="dateRange"
-  render={({ field }) => (
-    <FormItem className="flex-1 px-4">
-      <FormLabel className="block text-xs font-semibold">
-        Check in / out
-      </FormLabel>
-      <Popover>
-        <PopoverTrigger asChild>
-          <FormControl>
-            <Button
-  variant="ghost"
-  className={cn(
-    "text-left md:text-md font-normal pl-0 justify-start w-full h-auto",
-    !field.value?.from && "text-muted-foreground"
-  )}
->
-  {field.value?.from ? (
-    field.value?.to ? (
-      <>
-        {format(new Date(field.value.from), "LLL dd")} -{" "}
-        {format(new Date(field.value.to), "LLL dd")}
-      </>
-    ) : (
-      format(new Date(field.value.from), "LLL dd")
-    )
-  ) : (
-    <span>Add dates</span>
-  )}
-</Button>
-          </FormControl>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-  <Calendar
-    mode="range"
-    numberOfMonths={2}
-    selected={dateRange}
-    onSelect={(range) => {
-      setDateRange(range as any);
+                control={form.control}
+                name="dateRange"
+                render={({ field }) => (
+                  <FormItem className="flex-1 px-4">
+                    <FormLabel className="block text-xs font-semibold">
+                      Check in / out
+                    </FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="ghost"
+                            className={cn(
+                              "text-left md:text-md font-normal pl-0 justify-start w-full h-auto",
+                              !field.value?.from && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value?.from ? (
+                              field.value?.to ? (
+                                <>
+                                  {format(new Date(field.value.from), "LLL dd")}{" "}
+                                  - {format(new Date(field.value.to), "LLL dd")}
+                                </>
+                              ) : (
+                                format(new Date(field.value.from), "LLL dd")
+                              )
+                            ) : (
+                              <span>Add dates</span>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="range"
+                          numberOfMonths={2}
+                          selected={dateRange}
+                          onSelect={(range) => {
+                            console.log("range", range);
 
-      if (range) {
-        field.onChange({
-          from: range.from ? format(range.from, "yyyy-MM-dd") : undefined,
-          to: range.to ? format(range.to, "yyyy-MM-dd") : undefined,
-        });
-      } else {
-        field.onChange({ from: undefined, to: undefined });
-      }
-    }}
-    disabled={(date) => date < new Date()}
-  />
-</PopoverContent>
+                            if (!range) {
+                              setDateRange(undefined);
+                              field.onChange({
+                                from: undefined,
+                                to: undefined,
+                              });
+                              return;
+                            }
 
-      </Popover>
-      {/* 🔴 Show validation error */}
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+                            // First click: react-day-picker sets { from: d, to: d }
+                            // Force "to" to undefined so only "from" is kept
+                            if (
+                              range.from &&
+                              range.to &&
+                              range.from.getTime() === range.to.getTime()
+                            ) {
+                              setDateRange({ from: range.from, to: undefined });
+                              field.onChange({
+                                from: format(range.from, "yyyy-MM-dd"),
+                                to: undefined,
+                              });
+                              return;
+                            }
 
+                            // Second click: proper range
+                            if (range.from && range.to) {
+                              setDateRange(range);
+                              field.onChange({
+                                from: format(range.from, "yyyy-MM-dd"),
+                                to: format(range.to, "yyyy-MM-dd"),
+                              });
+                              return;
+                            }
+                          }}
+                          disabled={(date) => date < new Date()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {/* 🔴 Show validation error */}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* Guests */}
               <FormField

@@ -56,7 +56,8 @@ function HotelCard({ hotel, setHoveredHotel }: { hotel: any, setHoveredHotel?: a
   );
 
   return hasOffer ? (
-    <Link href={`/hotels/${hotel?.hotelId}`} key={hotel?.hotelId}>
+    <Link href={`/hotels/${hotel?.hotelId}`} target="_blank" 
+        rel="noopener noreferrer" key={hotel?.hotelId}>
       {content}
     </Link>
   ) : (
