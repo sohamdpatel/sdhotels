@@ -25,10 +25,10 @@ export default async function Home() {
   ];
 
   return (
-    <div className="font-sans min-h-screen py-8 px-4  space-y-16 sm:p-20">
+    <div className="font-sans md:min-h-screen  py-8 pt-24 px-4  space-y-16 md:p-10 lg:p-20 md:pt-[200px]">
       {/* <div className="w-1/2"> */}
         {sections.map((section) => (
-          <HotelsSlider 
+          <HotelsSlider
             key={section?.title}
             title={section?.title}
             items={section?.hotels}

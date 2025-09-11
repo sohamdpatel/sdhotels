@@ -96,7 +96,7 @@ class HotelService {
     }
   }
   
-  async searchAvailableHotelsV2(cityCode: string, checkIn: string, checkOut: string, adults: number) {
+  async searchAvailableHotelsV2(cityCode: string, checkIn: string, checkOut: string, adults: number = 1) {
   try {
     // STEP 1: Get hotels in the city
     // @ts-ignore
@@ -241,20 +241,22 @@ async getHotelDetailsById(hotelId: string) {
   }
 
   // 💰 Get hotel offers (with prices & rooms)
-  async getHotelOffers(hotelIds: string[] = ["BRPARVDB","BWPAR160","XKPAR120","HNPARKGU","FGPARPAL"] , cityCode: string = "DEL") {
+  async getHotelOffers({hotelId, checkInDate, checkOutDate, adults = 1}: {hotelId: string , checkInDate: string | undefined, checkOutDate: string | undefined, adults?: number}) {
     try {
-      console.log("id", hotelIds);
+      console.log("getHotelOffers data", hotelId, checkInDate, checkOutDate, adults)
       
       // @ts-ignore – Amadeus typings outdated
       const res = await this.client.shopping.hotelOffersSearch.get({
-        hotelIds: hotelIds.join(","),
-    adults: 1, // required parameter
-    roomQuantity: 1,
-    currency: "INR",
+        hotelIds: hotelId,
+        checkInDate,
+        checkOutDate,
+        adults, // required parameter
+        roomQuantity: 1,
+        currency: "INR",
       });
       console.log("res", res);
       
-      return res.data;
+      return res.data[0];
     } catch (err: any) {
       console.error("Amadeus API Error:", err.response?.result || err);
       throw err

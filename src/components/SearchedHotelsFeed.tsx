@@ -12,8 +12,9 @@ type Props = {
   city: string;
   checkIn: string;
   checkOut: string;
+  guests: number;
   adults: number;
-  page: number;
+  childrens: number;
 };
 
 const PAGE_SIZE = 10; // hotels per page
@@ -22,25 +23,23 @@ export default function SearchedHotelsFeed({
   city,
   checkIn,
   checkOut,
+  guests,
   adults,
-  page,
+  childrens,
 }: Props) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [hoveredHotel,setHoveredHotel] = useState<any>()
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["hotels", city, checkIn, checkOut, adults, page],
+    queryKey: ["hotels", city, checkIn, checkOut],
     queryFn: async () => {
       const allHotels = await hotelService.searchAvailableHotelsV2(
         city,
         checkIn,
         checkOut,
-        adults
       );
       return allHotels
     },
-    staleTime: 10 * 60 * 1000
+    staleTime: 60 * 60 * 1000
   });
 
   // const handlePageChange = (newPage: number) => {
@@ -59,7 +58,7 @@ export default function SearchedHotelsFeed({
       <div className="grid gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 flex-2">
         {data?.length ? (
           data?.map((hotel: any) => (
-            <HotelCard key={hotel.hotelId} hotel={hotel} setHoveredHotel={setHoveredHotel}/>
+            <HotelCard key={hotel.hotelId} hotel={hotel} setHoveredHotel={setHoveredHotel} guests={guests} adults={adults} childrens={childrens} />
           ))
         ) : (
           <p>No hotels found</p>

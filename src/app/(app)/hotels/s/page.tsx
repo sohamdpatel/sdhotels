@@ -7,7 +7,7 @@ import SearchedHotelsFeed from "@/components/SearchedHotelsFeed"
   searchParams: { [key: string]: string | undefined };
 }) {
      
-    const { city, checkIn, checkOut, adults, page } = searchParams;
+    const { city, checkIn, checkOut,guests, adults, childrens } = searchParams;
 
   return (
     <div className="max-w-8xl mx-auto p-6">
@@ -19,8 +19,9 @@ import SearchedHotelsFeed from "@/components/SearchedHotelsFeed"
         city={city || "DEL"}
         checkIn={checkIn || "2025-09-22"}
         checkOut={checkOut || "2025-09-25"}
-        adults={Number(adults) || 2}
-        page={Number(page) || 1}
+        guests={Number(guests) || 0}
+        adults={Number(adults) || 1}
+        childrens={Number(childrens) || 0}
       />
     </div>
   );

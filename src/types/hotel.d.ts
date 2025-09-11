@@ -16,7 +16,11 @@ interface HotelOffer {
   lastUpdate: string; // ISO date string
   masterChainCode: string;
   name: string;
-  offer: {
+  offer: HotelOffersOffer;
+  self: string;
+}
+
+interface HotelOffersOffer {
     boardType: string;
     checkInDate: string; // yyyy-MM-dd
     checkOutDate: string; // yyyy-MM-dd
@@ -86,6 +90,4 @@ interface HotelOffer {
         category: string;
       };
   };
-  };
-  self: string;
-}
+  }

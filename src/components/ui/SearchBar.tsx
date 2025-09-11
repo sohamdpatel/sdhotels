@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
-import { Search, Plus, Minus } from "lucide-react";
+import { Search, Plus, Minus, Hotel } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -32,7 +32,7 @@ import { useRouter } from "next/navigation";
 
 type FormData = z.infer<typeof searchSchema>;
 
-export default function SearchBar() {
+export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -47,7 +47,7 @@ export default function SearchBar() {
     defaultValues: {
       cityCode: "",
       dateRange: { from: undefined, to: undefined },
-      guests: { adults: 1, children: 0, infants: 0, pets: 0 },
+      guests: { adults: 0, children: 0, infants: 0, pets: 0 },
     },
   });
   // 🔎 fetch cities (from Amadeus)
@@ -75,12 +75,14 @@ export default function SearchBar() {
   const debouncedFetch = useMemo(() => debounce(fetchCitySuggestions, 500), []);
 
   const onSubmit = (data: FormData) => {
+    console.log("guests amoutn",data.guests)
     const params = new URLSearchParams({
       city: data.cityCode,
       checkIn: data.dateRange.from || "",
       checkOut: data.dateRange.to || "",
-      adults: String(data.guests || 2),
-      page: "1",
+      guests: String(data.guests.adults + data.guests.children || 0),
+      adults: String(data.guests.adults || 0),
+      children: String(data.guests.children || 0),
     });
 
     router.push(`/hotels/s?${params.toString()}`);
@@ -91,10 +93,10 @@ export default function SearchBar() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="  pl-3 pr-1 py-2 flex items-center bg-white rounded-full shadow-[0_2px_10px_-2px] "
+          className={` pl-3 pr-1 ${!isScrolled ? "py-2" : "py-1"} flex items-center`}
         >
-          <div className=" relative w-full flex items-center  ">
-            <div className=" flex items-center w-full divide-x">
+          <div className={`relative w-full flex items-center transition-all duration-300 ease-out ${!isScrolled ? "h-[52px]" : "h-[32px]"}`}>
+            { !isScrolled && <div className=" flex items-center w-full divide-x">
               {/* Where */}
               <FormField
                 control={form.control}
@@ -246,11 +248,11 @@ export default function SearchBar() {
                           variant="ghost"
                           className="w-full justify-start text-left text-md font-normal"
                         >
-                          {field.value.adults + field.value.children} guests
+                          {field.value.adults + field.value.children ? field.value.adults + field.value.children : "Add" } guests
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-80 p-4 space-y-4">
-                        {["adults", "children", "infants", "pets"].map(
+                        {["adults", "children"].map(
                           (type, idx) => (
                             <div
                               key={type}
@@ -310,19 +312,35 @@ export default function SearchBar() {
                   </FormItem>
                 )}
               />
-            </div>
+            </div>}
+
+            {isScrolled && <div className=" flex h-[32px]  justify-between pl-3 pr-10  w-full">
+              <Hotel className=" self-center" />
+                <div className="w-full flex divide-x">
+                  <div className="flex-1 self-center text-center">
+                  Anywhere
+                </div>
+                <div className="flex-1 self-center text-center">
+                  Anytime
+                </div>
+                <div className="flex-1 self-center text-center">
+                  Add guests
+                </div>
+                </div>
+              </div>}
 
             {/* Search Button */}
             {/* Search Button */}
             <Button
               type="submit"
-              className=" absolute aspect-square right-1 h-full bg-red-500 text-white group rounded-full hover:bg-red-600 flex items-center gap-2 transition-all"
+              disabled={isScrolled}
+              className={`absolute aspect-square ${ !isScrolled ? "right-1 " : "right-0 "} h-full bg-red-500 text-white group rounded-full hover:bg-red-600 flex items-center gap-2 transition-all`}
             >
-              <span className="opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-xs transition-all duration-300"></span>
+              {!isScrolled && <span className="opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-xs transition-all duration-300"></span>}
               <Search className="h-4 w-4" />
-              <span className="opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-xs group-hover:mr-3 transition-all duration-300">
+              { !isScrolled && <span className="opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-xs group-hover:mr-3 transition-all duration-300">
                 Search
-              </span>{" "}
+              </span>}{" "}
             </Button>
           </div>
         </form>

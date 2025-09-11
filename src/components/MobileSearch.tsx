@@ -9,7 +9,7 @@ export default function MobileSearch() {
         <>
         <button
           onClick={() => setIsOpen(true)}
-          className=" flex md:hidden gap-2 px-4 py-2 rounded-full shadow-[0_2px_10px_-2px] w-full mb-3 mt-2 text-black"
+          className=" flex md:hidden gap-2 px-4 py-2 rounded-full shadow-[0_2px_10px_-2px] w-full text-black"
         >
             <Search />
           Start your search

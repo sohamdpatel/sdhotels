@@ -3,12 +3,20 @@ import { MapPin } from "lucide-react";
 import Link from "next/link";
 import HotelCardLikeButton from "../ui/HotelCardLikeButton";
 
-function HotelCard({ hotel, setHoveredHotel }: { hotel: any, setHoveredHotel?: any }) {
+function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens = 0 }: { hotel: HotelOffer, setHoveredHotel?: any, guests?: number, adults?: number, childrens?: number }) {
   const hasOffer = !!hotel?.offer;
+  let price;
+  if( guests > 3){
+
+    price = parseInt(hotel?.offer?.price?.total) * (guests / 3)
+  } else {
+    price = hotel?.offer?.price?.total
+  }
+
 
   const content = (
     <div
-      className={`flex flex-col ${
+      className={`flex flex-col max-w-md ${
         hasOffer ? "cursor-pointer" : "cursor-not-allowed"
       }`}
       onMouseEnter={() => setHoveredHotel && setHoveredHotel(hotel)}
@@ -27,7 +35,7 @@ function HotelCard({ hotel, setHoveredHotel }: { hotel: any, setHoveredHotel?: a
         {/* Heart icon */}
         <HotelCardLikeButton />
       </div>
-
+ 
       {/* Hotel Info */}
       <div className="mt-2 flex flex-col gap-1">
         <div className="flex justify-between items-start">
@@ -40,10 +48,10 @@ function HotelCard({ hotel, setHoveredHotel }: { hotel: any, setHoveredHotel?: a
         </div>
 
         <div className="mt-1">
-          {hasOffer ? (
+          {hasOffer && price ? (
             <>
               <span className="font-semibold">
-                {hotel?.offer?.price?.total} {hotel?.offer?.price?.currency}
+                {price} {hotel?.offer?.price?.currency}
               </span>{" "}
               <span className="text-gray-500 text-sm">for a day</span>
             </>
@@ -55,8 +63,9 @@ function HotelCard({ hotel, setHoveredHotel }: { hotel: any, setHoveredHotel?: a
     </div>
   );
 
+
   return hasOffer ? (
-    <Link href={`/hotels/${hotel?.hotelId}`} target="_blank" 
+    <Link href={`/hotels/${hotel?.hotelId}?checkIn=${hotel?.offer?.checkInDate}&checkOut=${hotel?.offer?.checkInDate}&guests=${guests}&adults=${adults}&childrens=${childrens}&`} target="_blank" 
         rel="noopener noreferrer" key={hotel?.hotelId}>
       {content}
     </Link>
