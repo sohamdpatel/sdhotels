@@ -73,7 +73,7 @@ export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel }: { h
   if (!isLoaded) return <p>Loading map...</p>;
 
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={12} mapContainerClassName="flex-1 sticky ">
+    <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={12} mapContainerClassName="flex-1 rounded-2xl">
       {orderedHotels.map((hotel) => (
         <OverlayView 
           key={hotel.hotelId}

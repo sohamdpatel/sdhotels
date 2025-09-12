@@ -17,8 +17,6 @@ type Props = {
   childrens: number;
 };
 
-const PAGE_SIZE = 10; // hotels per page
-
 export default function SearchedHotelsFeed({
   city,
   checkIn,
@@ -54,47 +52,34 @@ export default function SearchedHotelsFeed({
   // const totalPages = Math.ceil((data?.total ?? 0) / PAGE_SIZE);
 
   return (
-    <div className=" w-full flex gap-5">
-      <div className="grid gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 flex-2">
-        {data?.length ? (
-          data?.map((hotel: any) => (
-            <HotelCard key={hotel.hotelId} hotel={hotel} setHoveredHotel={setHoveredHotel} guests={guests} adults={adults} childrens={childrens} />
-          ))
-        ) : (
-          <p>No hotels found</p>
-        )}
-      </div>
-         <MapHotels hotels={data!} hoveredHotel={hoveredHotel} setHoveredHotel={setHoveredHotel}/>
-      {/* Pagination */}
-      {/* {totalPages > 1 && (
-        <div className="flex justify-center mt-6 gap-2">
-          <button
-            disabled={page === 1}
-            onClick={() => handlePageChange(page - 1)}
-            className={`px-4 py-2 rounded border ${
-              page === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
-            }`}
-          >
-            Prev
-          </button>
+    <div className="w-full flex gap-5">
+  {/* Hotels Grid */}
+  <div className="grid gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 flex-2">
+    {data?.length ? (
+      data?.map((hotel: any) => (
+        <HotelCard
+          key={hotel.hotelId}
+          hotel={hotel}
+          setHoveredHotel={setHoveredHotel}
+          guests={guests}
+          adults={adults}
+          childrens={childrens}
+        />
+      ))
+    ) : (
+      <p>No hotels found</p>
+    )}
+  </div>
 
-          <span className="px-3 py-2">
-            Page {page} of {totalPages}
-          </span>
+  {/* Sticky Map */}
+  <div className="hidden lg:block w-[40%] sticky top-24 h-fit">
+    <MapHotels
+      hotels={data!}
+      hoveredHotel={hoveredHotel}
+      setHoveredHotel={setHoveredHotel}
+    />
+  </div>
+</div>
 
-          <button
-            disabled={page === totalPages}
-            onClick={() => handlePageChange(page + 1)}
-            className={`px-4 py-2 rounded border ${
-              page === totalPages
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            Next
-          </button>
-        </div>
-      )} */}
-    </div>
   );
 }

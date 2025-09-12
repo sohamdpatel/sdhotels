@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -28,11 +28,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { searchSchema } from "@/schemas/search.schema";
 import { debounce } from "@/lib/debounce";
 import { hotelService } from "@/data-services/hotelData";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type FormData = z.infer<typeof searchSchema>;
 
 export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
+
+   const router = useRouter();
+  const searchParams = useSearchParams();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -41,15 +44,52 @@ export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
+   const cityParam = searchParams.get("city") || "";
+  const checkInParam = searchParams.get("checkIn");
+  const checkOutParam = searchParams.get("checkOut");
+  const guestsParam = Number(searchParams.get("guests")) || 0;
+  const adultsParam = Number(searchParams.get("adults")) || 0;
+  const childrenParam = Number(searchParams.get("children")) || 0;
+
   const form = useForm<FormData>({
     resolver: zodResolver(searchSchema),
     defaultValues: {
-      cityCode: "",
-      dateRange: { from: undefined, to: undefined },
-      guests: { adults: 0, children: 0, infants: 0, pets: 0 },
+      cityCode: cityParam,
+      dateRange: {
+        from: checkInParam ? checkInParam : undefined,
+        to: checkOutParam ? checkOutParam : undefined,
+      },
+      guests: {
+        adults: adultsParam,
+        children: childrenParam,
+        infants: 0,
+        pets: 0,
+      },
     },
   });
+  useEffect(() => {
+    if (checkInParam || checkOutParam) {
+      setDateRange({
+        from: checkInParam ? new Date(checkInParam) : undefined,
+        to: checkOutParam ? new Date(checkOutParam) : undefined,
+      });
+    }
+  }, [checkInParam, checkOutParam]);
+
+  const cityValue = form.watch("cityCode");
+const dateValue = form.watch("dateRange");
+const guestsValue = form.watch("guests");
+
+const compactCity = cityValue ? cityValue : "Anywhere";
+
+const compactDate =
+  dateValue?.from && dateValue?.to
+    ? `${format(new Date(dateValue.from), "dd")} - ${format(new Date(dateValue.to), "dd LLL")}`
+    : "Anytime";
+
+const totalGuests = (guestsValue?.adults || 0) + (guestsValue?.children || 0);
+const compactGuests = totalGuests > 0 ? `${totalGuests} guests` : "Add guests";
+
   // 🔎 fetch cities (from Amadeus)
   const fetchCitySuggestions = async (query: string) => {
     if (query.length < 2) {
@@ -95,7 +135,9 @@ export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
           onSubmit={form.handleSubmit(onSubmit)}
           className={` pl-3 pr-1 ${!isScrolled ? "py-2" : "py-1"} flex items-center`}
         >
-          <div className={`relative w-full flex items-center transition-all duration-300 ease-out ${!isScrolled ? "h-[52px]" : "h-[32px]"}`}>
+          <div className={`relative w-full flex items-center transition-all duration-300 ease-out ${!isScrolled ? "h-[52px]" : "h-[36px]"}`}>
+
+            {/* expand header */}
             { !isScrolled && <div className=" flex items-center w-full divide-x">
               {/* Where */}
               <FormField
@@ -314,17 +356,19 @@ export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
               />
             </div>}
 
+            {/* compact header */}
+
             {isScrolled && <div className=" flex h-[32px]  justify-between pl-3 pr-10  w-full">
               <Hotel className=" self-center" />
                 <div className="w-full flex divide-x">
                   <div className="flex-1 self-center text-center">
-                  Anywhere
+                  {compactCity}
                 </div>
                 <div className="flex-1 self-center text-center">
-                  Anytime
+                  {compactDate}
                 </div>
                 <div className="flex-1 self-center text-center">
-                  Add guests
+                  {compactGuests}
                 </div>
                 </div>
               </div>}

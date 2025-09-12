@@ -26,7 +26,7 @@ export default async function HotelDetailsPage({
     console.log("i am in detail page condition");
 
     const price =
-      parseInt(hotelDetails?.offer?.price?.total) * Math.ceil(guests / 3);
+      parseFloat(hotelDetails?.offer?.price?.total) * Math.ceil(guests / 3);
 
     console.log("price after cal from detail server", price);
 

@@ -86,7 +86,7 @@ export default function HotelDetails({
       console.log("Updated offer response:", response);
       const totalGuests = guestss.adults + guestss.children
       if(totalGuests > 3) {
-      const pricesAfterCal = parseInt(response?.offers[0]?.price?.total) * Math.ceil(totalGuests / 3)
+      const pricesAfterCal = parseFloat(parseFloat(response?.offers[0]?.price?.total).toFixed(2)) * Math.ceil(totalGuests / 3)
         response.offers[0].price.total = String(pricesAfterCal)
       }
       console.log("offer after price change", response?.offers?.[0]);
@@ -119,7 +119,7 @@ export default function HotelDetails({
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6 md:pt-[200px]">
+    <div className="max-w-6xl mx-auto p-6 pt-24 space-y-6 md:pt-[200px]">
       {/* Hotel Header */}
       <div className=" flex justify-between items-center">
         <h1 className="text-3xl font-bold">{hotelDetails?.name}</h1>
@@ -269,7 +269,7 @@ export default function HotelDetails({
               {loading
     ? "Loading..."
     : offer?.price?.total
-    ? `₹${offer.price.total}`
+    ? `₹${(offer.price.total)}`
     : "—"}{" "}
               {nights > 0 && !loading && (
                 <span className="text-gray-500 font-normal text-base">

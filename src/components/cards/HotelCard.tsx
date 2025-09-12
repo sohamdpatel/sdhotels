@@ -8,7 +8,11 @@ function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens =
   let price;
   if( guests > 3){
 
-    price = parseInt(hotel?.offer?.price?.total) * (guests / 3)
+    const hotelprice = parseFloat(parseFloat(hotel?.offer?.price?.total).toFixed(2))
+    const room = Math.ceil(guests / 3)
+    price = parseFloat((hotelprice  * room).toFixed(2))
+    console.log("price from cards",hotel?.name, price , hotelprice, room);
+    
   } else {
     price = hotel?.offer?.price?.total
   }

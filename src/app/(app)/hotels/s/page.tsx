@@ -10,7 +10,7 @@ import SearchedHotelsFeed from "@/components/SearchedHotelsFeed"
     const { city, checkIn, checkOut,guests, adults, childrens } = searchParams;
 
   return (
-    <div className="max-w-8xl mx-auto p-6">
+    <div className="max-w-8xl mx-auto p-6 pt-24 md:pt-[200px]">
       <h1 className="text-2xl font-semibold mb-6">
         Hotels in {city ?? "Unknown"}
       </h1>
