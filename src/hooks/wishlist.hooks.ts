@@ -1,8 +1,5 @@
-// hooks/useWishlist.ts
 import { useCallback } from "react";
 import { useLocalStorage } from "./localStorage.hooks";
-
-
 
 type WishlistFolders = Record<string, HotelOffer[]>;
 
@@ -12,7 +9,6 @@ export function useWishlist() {
     {}
   );
 
-  // helper to normalize id so "123" vs 123 match
   const normalizeId = (id: string | number) => String(id);
 
   const addHotel = useCallback(
@@ -22,12 +18,14 @@ export function useWishlist() {
       setFolders((prev = {}) => {
         const current = prev[folderName] ?? [];
 
-        // avoid duplicates by normalized id
-        if (current.some((h) => normalizeId(h.hotelId) === normalizeId(hotel.hotelId))) {
+        if (
+          current.some(
+            (h) => normalizeId(h.hotelId) === normalizeId(hotel.hotelId)
+          )
+        ) {
           return prev; // no change
         }
 
-        // return new object (immutable)
         return { ...prev, [folderName]: [...current, hotel] };
       });
 
@@ -39,22 +37,21 @@ export function useWishlist() {
   const removeHotel = useCallback(
     (hotelId: string | number): boolean => {
       setFolders((prev = {}) => {
-        // If no folders exist, nothing to remove
         const entries = Object.entries(prev);
         if (entries.length === 0) return prev;
 
         const idNorm = normalizeId(hotelId);
-
         const updated: WishlistFolders = {};
         let changed = false;
 
         for (const [folder, list] of entries) {
-          const filtered = list.filter((h) => normalizeId(h.hotelId) !== idNorm);
+          const filtered = list.filter(
+            (h) => normalizeId(h.hotelId) !== idNorm
+          );
           updated[folder] = filtered;
           if (filtered.length !== list.length) changed = true;
         }
 
-        // If nothing changed, return prev so state identity doesn't change
         return changed ? updated : prev;
       });
 
@@ -65,9 +62,14 @@ export function useWishlist() {
 
   const findFolderByHotelId = useCallback(
     (hotelId: string | number): string | null => {
+      console.log("findFolderByHotelId runs")
       const idNorm = normalizeId(hotelId);
       for (const folder in folders) {
-        if ((folders[folder] || []).some((h) => normalizeId(h.hotelId) === idNorm)) {
+        if (
+          (folders[folder] || []).some(
+            (h) => normalizeId(h.hotelId) === idNorm
+          )
+        ) {
           return folder;
         }
       }
@@ -89,11 +91,20 @@ export function useWishlist() {
   );
 
   const getFolder = useCallback(
+    
     (folderName: string) => {
+      console.log("getfolders")
       return folders?.[folderName] ?? [];
     },
     [folders]
   );
 
-  return { folders, addHotel, removeHotel, createFolder, getFolder, findFolderByHotelId };
+  return {
+    folders,
+    addHotel,
+    removeHotel,
+    createFolder,
+    getFolder,
+    findFolderByHotelId,
+  };
 }

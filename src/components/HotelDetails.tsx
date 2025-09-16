@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Heart, Hotel, Info, MapPin, Share } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GoogleMap, OverlayView, useLoadScript } from "@react-google-maps/api";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Controller, useForm } from "react-hook-form";
 import { hotelService } from "@/data-services/hotelData";
+import { debounce } from "@/lib/debounce";
 
 function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
   useEffect(() => {
@@ -46,12 +47,20 @@ export default function HotelDetails({
   childrens: number,
 }) {
   // Dummy single hotel data from your object
-//   console.log("hoteldeatils from inner component", hotelDetails);
+  console.log("hoteldeatils from inner component", adults, childrens);
+const router = useRouter();
+const searchParams = useSearchParams();
 
   //   check offer
   const [guestPopover, setGuestPopover] = useState(false);
-  const [offer, setOffer] = useState<HotelOffersOffer>(hotelDetails?.offer); // current offer from API
+  const [offer, setOffer] = useState<HotelOffersOffer | undefined>(hotelDetails?.offer); // current offer from API
   const [loading, setLoading] = useState(false);
+const [basePrice, setBasePrice] = useState<number | null>(() =>
+    hotelDetails?.offer?.price?.total
+      ? parseFloat(String(hotelDetails.offer.price.total))
+      : null
+  );
+
 
   const form = useForm({
     defaultValues: {
@@ -65,6 +74,19 @@ export default function HotelDetails({
 
   const dateRange = form.watch("dateRange");
   const guestss = form.watch("guests");
+
+//   useEffect(() => {
+//   if (!dateRange?.from || !dateRange?.to) return;
+
+//   const params = new URLSearchParams(searchParams.toString());
+
+//   params.set("checkIn", format(dateRange.from, "yyyy-MM-dd"));
+//   params.set("checkOut", format(dateRange.to, "yyyy-MM-dd"));
+//   params.set("adults", String(guestss.adults));
+//   params.set("children", String(guestss.children));
+
+//   router.replace(`?${params.toString()}`, { scroll: false });
+// }, [dateRange, guestss, router]);
 
   // 🔥 Fetch new offer whenever dateRange or guests change
   useDebouncedEffect(() => {
@@ -84,14 +106,14 @@ export default function HotelDetails({
         checkOutDate: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
       });
       console.log("Updated offer response:", response);
-      const totalGuests = guestss.adults + guestss.children
-      if(totalGuests > 3) {
-      const pricesAfterCal = parseFloat(parseFloat(response?.offers[0]?.price?.total).toFixed(2)) * Math.ceil(totalGuests / 3)
-        response.offers[0].price.total = String(pricesAfterCal)
+      const newOffer = response?.offers?.[0] ?? null;
+      setOffer(newOffer);
+
+      if (newOffer?.price?.total != null) {
+        setBasePrice(parseFloat(String(newOffer.price.total)));
+      } else {
+        setBasePrice(null);
       }
-      console.log("offer after price change", response?.offers?.[0]);
-      
-      setOffer(response?.offers?.[0] || null);
     } catch (err) {
       console.error("Error fetching updated offer:", err);
     } finally {
@@ -101,6 +123,68 @@ export default function HotelDetails({
 
   fetchOffer();
 }, [dateRange, hotelDetails.hotelId], 500); // 500ms debounce
+
+const debouncedUpdateUrl = useMemo(
+  () =>
+    debounce((dateRange: DateRange | undefined, guests: any) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (dateRange?.from)
+        params.set("checkIn", format(dateRange.from, "yyyy-MM-dd"));
+      if (dateRange?.to)
+        params.set("checkOut", format(dateRange.to, "yyyy-MM-dd"));
+
+      params.set("guests", String(guests.adults+guests.children));
+      params.set("adults", String(guests.adults));
+      params.set("children", String(guests.children));
+
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }, 400),
+  [searchParams, router]
+);
+
+const debouncedRecalculatePrice = useMemo(
+    () =>
+      debounce(
+        (
+          guestsObj: { adults: number; children: number },
+          currentBase: number | null
+        ) => {
+          setLoading(true)
+          if (!currentBase || !offer) return;
+
+          const totalGuests = (guestsObj.adults || 0) + (guestsObj.children || 0);
+          const multiplier = Math.max(1, Math.ceil(totalGuests / 3));
+
+          const newTotal = currentBase * multiplier;
+
+          setOffer((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              price: {
+                ...prev.price,
+                total: String(parseFloat(newTotal.toFixed(2))),
+              },
+            };
+          });
+          setLoading(false)
+        },
+        300 // debounce delay
+      ),
+    [offer]
+  );
+  useEffect(() => {
+    if (hotelDetails?.offer?.price?.total) {
+      setBasePrice(parseFloat(String(hotelDetails.offer.price.total)));
+      setOffer(hotelDetails.offer);
+    }
+  }, [hotelDetails?.offer]);
+
+useEffect(() => {
+  debouncedRecalculatePrice(guestss, basePrice);
+  debouncedUpdateUrl(dateRange, guestss);
+}, [dateRange, guestss]);
 
 
 

@@ -1,8 +1,9 @@
 "use client";
 
+import { useHotelHoverStore } from "@/hooks/hoverEffect.hooks";
 import { GoogleMap, OverlayView, useLoadScript } from "@react-google-maps/api";
-import { Hotel } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Hotel as HotelIcon } from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
 
 type Hotel = {
   hotelId: string;
@@ -14,24 +15,137 @@ type Hotel = {
 };
 
 type containerStyleProp = {
-  width: string,
-  height?: string,
+  width: string;
+  height?: string;
 };
 
-export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel, className, containerStyle = {width: "100%",
-  height: "600px",} }: { hotels: any[], hoveredHotel: Hotel | null, setHoveredHotel: any, className?: string, containerStyle?: containerStyleProp}) {
+// ------------------------
+// Memoized Hotel Marker
+// ------------------------
+type HotelMarkerProps = {
+  hotel: Hotel;
+  isHovered: boolean;
+  isSelected: boolean;
+  onHover: (id: string | null) => void;
+  onClick: (id: string) => void;
+};
+
+const HotelMarker = React.memo(
+  ({ hotel, isHovered, isSelected, onHover, onClick }: HotelMarkerProps) => (
+    <OverlayView
+      key={hotel.hotelId}
+      position={{
+        lat: hotel.geoCode.latitude,
+        lng: hotel.geoCode.longitude,
+      }}
+      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+    >
+      <div
+        onMouseEnter={() => onHover(hotel.hotelId)}
+        onMouseLeave={() => onHover(null)}
+        onClick={() => onClick(hotel.hotelId)}
+        className="relative flex flex-col items-center cursor-pointer"
+        style={{ zIndex: isSelected || isHovered ? 9999 : 1 }}
+      >
+        {hotel.offer ? (
+          <div
+            className={`px-3 py-1 rounded-full font-semibold text-sm transition ${
+              isSelected || isHovered
+                ? "bg-black text-white scale-110 z-50"
+                : "bg-white text-black shadow"
+            }`}
+          >
+            ₹{hotel.offer.price.total ?? "N/A"}
+          </div>
+        ) : (
+          <div
+            className={`p-3 rounded-full font-semibold text-sm transition ${
+              isSelected || isHovered
+                ? "bg-black text-white scale-110 z-50"
+                : "bg-white text-black shadow"
+            }`}
+          >
+            <HotelIcon />
+          </div>
+        )}
+      </div>
+    </OverlayView>
+  ),
+  (prev, next) =>
+    prev.isHovered === next.isHovered && prev.isSelected === next.isSelected
+);
+
+// ------------------------
+// Marker List Component
+// ------------------------
+const HotelMarkersList = React.memo(
+  ({ hotels }: { hotels: Hotel[] }) => {
+    const hoveredHotelId = useHotelHoverStore((state) => state.hoveredHotelId);
+    const setHoveredHotelId = useHotelHoverStore((state) => state.setHoveredHotelId);
+
+    const selectedHotelId = useHotelHoverStore((state) => state.selectedHotelId);
+    const setSelectedHotelId = useHotelHoverStore((state) => state.setSelectedHotelId);
+
+    const handleHover = useCallback(
+      (id: string | null) => setHoveredHotelId(id),
+      [setHoveredHotelId]
+    );
+
+    const handleClick = useCallback(
+  (id: string) => {
+    const store = useHotelHoverStore.getState();
+    const newId = store.selectedHotelId === id ? null : id;
+    store.setSelectedHotelId(newId);
+  },
+  []
+);
+
+
+    return (
+      <>
+        {hotels.map((hotel) => {
+          const isHovered = hotel.hotelId === hoveredHotelId;
+          const isSelected = hotel.hotelId === selectedHotelId;
+          return (
+            <HotelMarker
+              key={hotel.hotelId}
+              hotel={hotel}
+              isHovered={isHovered}
+              isSelected={isSelected}
+              onHover={handleHover}
+              onClick={handleClick}
+            />
+          );
+        })}
+      </>
+    );
+  }
+);
+
+// ------------------------
+// Main MapHotels Component
+// ------------------------
+export default function MapHotels({
+  hotels,
+  className,
+  containerStyle = { width: "100%", height: "600px" },
+}: {
+  hotels: Hotel[];
+  className?: string;
+  containerStyle?: containerStyleProp;
+}) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
+  console.log("Map")
+  const selectedHotelId = useHotelHoverStore((state) => state.selectedHotelId);
+  const selectedHotel = hotels.find((h) => h.hotelId === selectedHotelId) ?? null;
 
-  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
-//   const [hoveredHotel, setHoveredHotel] = useState<Hotel | null>(null);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
     lat: 28.6,
-    lng: 77.2, // default Delhi
+    lng: 77.2,
   });
 
-  // ✅ When hotels change, recenter map to the first hotel’s city
   useEffect(() => {
     if (hotels.length > 0) {
       const firstHotel = hotels[0];
@@ -42,121 +156,62 @@ export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel, class
     }
   }, [hotels]);
 
-  // ✅ Ensure selected hotel is always "on top"
-//   const orderedHotels = useMemo(() => {
-//     if (!selectedHotel) return hotels;
-//     return [
-//       ...hotels.filter((h) => h.hotelId !== selectedHotel.hotelId),
-//       selectedHotel, // move selected to last so it's rendered above
-//     ];
-//   }, [hotels, selectedHotel]);
-
-  const orderedHotels = useMemo(() => {
-    // console.log("hotels", selectedHotel, hoveredHotel);
-    
-  if (!selectedHotel && !hoveredHotel) return hotels;
-
-  const uniqueHotels = new Set([selectedHotel?.hotelId, hoveredHotel?.hotelId]);
-  
-  const filteredHotels = hotels.filter((h) => !uniqueHotels.has(h.hotelId));
-
-  const sortedArray = [...filteredHotels];
-
-  if (selectedHotel) {
-    sortedArray.push(selectedHotel);
-  }
-  if (hoveredHotel && hoveredHotel.hotelId !== selectedHotel?.hotelId) {
-    sortedArray.push(hoveredHotel);
-  }
-
-  return sortedArray;
-}, [hotels]);
-
   if (!isLoaded) return <p>Loading map...</p>;
 
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={12} mapContainerClassName={`flex-1 rounded-2xl ${className}`}>
-      {orderedHotels.map((hotel) => (
-        <OverlayView 
-          key={hotel.hotelId}
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={mapCenter}
+      zoom={12}
+      mapContainerClassName={`flex-1 rounded-2xl ${className}`}
+    >
+      {/* Marker List */}
+      <HotelMarkersList hotels={hotels} />
+
+      {/* Detail Card for Selected Hotel */}
+      {selectedHotel && (
+        <OverlayView
           position={{
-            lat: hotel.geoCode.latitude,
-            lng: hotel.geoCode.longitude,
+            lat: selectedHotel.geoCode.latitude,
+            lng: selectedHotel.geoCode.longitude,
           }}
           mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
         >
-          <div
-            onMouseEnter={() =>
-              setHoveredHotel(
-                hoveredHotel?.hotelId === hotel.hotelId ? null : hotel
-              )
-            }
-            onMouseLeave={() => setHoveredHotel(null)}
-            onClick={() =>
-              setSelectedHotel(
-                selectedHotel?.hotelId === hotel.hotelId ? null : hotel
-              )}
-            className="relative flex flex-col items-center"
-            style={{
-              zIndex: selectedHotel?.hotelId === hotel.hotelId || hoveredHotel?.hotelId === hotel.hotelId ? 9999 : 1,
-            }}
-          >
-            {/* Price bubble */}
-            {hotel?.offer ? <div
-              className={`px-3 py-1 rounded-full font-semibold text-sm cursor-pointer transition ${
-                selectedHotel?.hotelId === hotel.hotelId || hoveredHotel?.hotelId === hotel.hotelId
-                  ? "bg-black text-white scale-110 z-50"
-                  : "bg-white text-black shadow"
-              }`}
-            >
-              ₹{hotel.offer?.price?.total ?? "N/A"}
-            </div> : <div
-                      className={` p-3 rounded-full font-semibold text-sm cursor-pointer transition ${
-                selectedHotel?.hotelId === hotel.hotelId || hoveredHotel?.hotelId === hotel.hotelId
-                  ? "bg-black text-white scale-110 z-50"
-                  : "bg-white text-black shadow"
-              }`}
-                    >
-                      <Hotel />
-                    </div>}
-
-            {/* Detail card when selected */}
-            {selectedHotel?.hotelId === hotel.hotelId && (
-              <div className="absolute -top-68 left-1/2 -translate-x-1/2 w-60 bg-white rounded-xl shadow-lg overflow-hidden z-50">
-                <img
-                  src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NjE5Mzc0MDg3NzM1MTA5MTM0/original/ddb89954-9b3f-467d-9fdf-036affd6b537.jpeg"
-                  alt={hotel.name}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-3">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-base truncate">{hotel.name}</h3>
-                    <button
-                      onClick={() => {setSelectedHotel(null)
-                        setHoveredHotel(null)
-                      }}
-                      className="text-gray-400 hover:text-black"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <p className="text-sm text-gray-600">{hotel.address.cityName}</p>
-                  <p className="text-xs text-gray-500 line-clamp-2 mt-1">
-                    {hotel.description ?? "Nice hotel with comfortable stay."}
-                  </p>
-                  {hotel.offer ? (
-                    <p className="mt-2 font-semibold text-red-500">
-                      ₹{hotel.offer.price.total} {hotel.offer.price.currency}
-                    </p>
-                  ) : (
-                    <p className="text-gray-400 text-xs">No offer available</p>
-                  )}
-                </div>
+          <div className="absolute -top-68 left-1/2 -translate-x-1/2 w-60 bg-white rounded-xl shadow-lg overflow-hidden z-50">
+            <img
+              src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NjE5Mzc0MDg3NzM1MTA5MTM0/original/ddb89954-9b3f-467d-9fdf-036affd6b537.jpeg"
+              alt={selectedHotel.name}
+              className="w-full h-40 object-cover"
+            />
+            <div className="p-3">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-base truncate">{selectedHotel.name}</h3>
+                <button
+                  onClick={() => {
+                    const store = useHotelHoverStore.getState();
+                    store.setSelectedHotelId(null);
+                    store.setHoveredHotelId(null);
+                  }}
+                  className="text-gray-400 hover:text-black"
+                >
+                  ✕
+                </button>
               </div>
-            )}
+              <p className="text-sm text-gray-600">{selectedHotel.address.cityName}</p>
+              <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+                {selectedHotel.description ?? "Nice hotel with comfortable stay."}
+              </p>
+              {selectedHotel.offer ? (
+                <p className="mt-2 font-semibold text-red-500">
+                  ₹{selectedHotel.offer.price.total} {selectedHotel.offer.price.currency}
+                </p>
+              ) : (
+                <p className="text-gray-400 text-xs">No offer available</p>
+              )}
+            </div>
           </div>
         </OverlayView>
-      ))}
+      )}
     </GoogleMap>
   );
 }

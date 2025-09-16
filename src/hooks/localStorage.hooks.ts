@@ -1,31 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-/**
- * A React hook to persist state to localStorage.
- * @param key localStorage key
- * @param initialValue default value if nothing in localStorage
- */
 export function useLocalStorage<T>(key: string, initialValue: T) {
-  // State to store our value
-  const [storedValue, setStoredValue] = useState<T>(() => {
+  const [, forceUpdate] = useState(0);
+
+  const getValue = (): T => {
     try {
       const item = window.localStorage.getItem(key);
       return item ? (JSON.parse(item) as T) : initialValue;
-    } catch (error) {
-      console.warn("useLocalStorage get error", error);
+    } catch {
       return initialValue;
     }
-  });
+  };
 
-  // Keep localStorage in sync when state changes
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(key, JSON.stringify(storedValue));
-    } catch (error) {
-      console.warn("useLocalStorage set error", error);
-    }
-  }, [key, storedValue]);
+  // 👇 this is the actual value, not a function
+  const value: T = getValue();
 
-  // You can call setValue(newValue) just like useState
-  return [storedValue, setStoredValue] as const;
+  const setValue = (
+    updater: T | ((prev: T) => T)
+  ): void => {
+    const current = getValue();
+    const next =
+      typeof updater === "function"
+        ? (updater as (prev: T) => T)(current)
+        : updater;
+
+    window.localStorage.setItem(key, JSON.stringify(next));
+    forceUpdate((x) => x + 1);
+  };
+
+  // 👇 value is T, setValue writes + rerenders
+  return [value, setValue] as const;
 }

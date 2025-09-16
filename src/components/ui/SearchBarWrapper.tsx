@@ -45,10 +45,19 @@ export default function SearchBarWrapper() {
     setIsExpanded(true);
   };
 
-  const handleClickOutside = (e: any) => {
-    if (e.target.closest(".search-bar-container")) return;
-    setIsExpanded(false);
-  };
+  const handleClickOutside = (e: MouseEvent) => {
+  if (
+    e.target instanceof Element &&
+    (
+      e.target.closest(".search-bar-container") || 
+      e.target.closest(".drop-down") || 
+      e.target.closest("[data-radix-popper-content-wrapper]")
+    )
+  ) {
+    return;
+  }
+  setIsExpanded(false);
+};
 
   useEffect(() => {
     if (isExpanded) {

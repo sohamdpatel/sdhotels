@@ -2,9 +2,12 @@ import React from "react";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
 import HotelCardLikeButton from "../ui/HotelCardLikeButton";
+import { useHotelHoverStore } from "@/hooks/hoverEffect.hooks";
 
-function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens = 0 }: { hotel: HotelOffer, setHoveredHotel?: any, guests?: number, adults?: number, childrens?: number }) {
+function HotelCard({ hotel, guests = 1, adults = 1, childrens = 0 }: { hotel: HotelOffer, guests?: number, adults?: number, childrens?: number }) {
   const hasOffer = !!hotel?.offer;
+const setHoveredHotelId = useHotelHoverStore((state) => state.setHoveredHotelId);
+  
   let price;
   if( guests > 3){
 
@@ -23,8 +26,8 @@ function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens =
       className={`flex flex-col xl:max-w-[262.3px] lg:max-w-[267.8px]  md:max-w-[300px] max-w-[295px] h-fit ${
         hasOffer ? "cursor-pointer" : "cursor-not-allowed"
       }`}
-      onMouseEnter={() => setHoveredHotel && setHoveredHotel(hotel)}
-      onMouseLeave={() => setHoveredHotel && setHoveredHotel(null)}
+      onMouseEnter={() => setHoveredHotelId && setHoveredHotelId(hotel?.hotelId)}
+      onMouseLeave={() => setHoveredHotelId && setHoveredHotelId(null)}
     >
       {/* Image with overlay */}
       <div className="relative">
@@ -79,3 +82,5 @@ function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens =
 }
 
 export default HotelCard;
+
+

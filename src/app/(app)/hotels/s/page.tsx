@@ -2,12 +2,12 @@
 import SearchedHotelsFeed from "@/components/SearchedHotelsFeed"
 
   
-  export default function SearchHotelsPage({searchParams,
+  export default async function SearchHotelsPage({searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
 }) {
      
-    const { city, checkIn, checkOut,guests, adults, childrens } = searchParams;
+    const { city, checkIn, checkOut,guests, adults, childrens } = await searchParams;
 
   return (
     <div className="max-w-8xl mx-auto p-6 pt-24 md:pt-[200px]">

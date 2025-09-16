@@ -163,10 +163,10 @@ const compactGuests = totalGuests > 0 ? `${totalGuests} guests` : "Add guests";
 
                     {/* Suggestions dropdown */}
                     {suggestions.length > 0 && (
-                      <div className="absolute top-full left-0 mt-1 w-full bg-white border rounded-md shadow-lg z-50 max-h-64 overflow-auto">
+                      <div className="absolute drop-down top-full left-0 mt-1 w-full bg-white border rounded-md shadow-lg z-50 max-h-64 overflow-auto">
                         {loading && (
                           <div className="p-2 text-sm text-gray-500">
-                            Loading...
+                            Loading... 
                           </div>
                         )}
                         {suggestions.map((s, idx) => (

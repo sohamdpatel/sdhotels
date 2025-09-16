@@ -25,11 +25,14 @@ export default function SearchedHotelsFeed({
   adults,
   childrens,
 }: Props) {
-  const [hoveredHotel,setHoveredHotel] = useState<any>()
+  // const [hoveredHotel,setHoveredHotel] = useState<any>()
+
+  console.log("searched hotel feed page")
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["hotels", city, checkIn, checkOut],
     queryFn: async () => {
+      console.log("recall the query")
       const allHotels = await hotelService.searchAvailableHotelsV2(
         city,
         checkIn,
@@ -60,7 +63,6 @@ export default function SearchedHotelsFeed({
         <HotelCard
           key={hotel.hotelId}
           hotel={hotel}
-          setHoveredHotel={setHoveredHotel}
           guests={guests}
           adults={adults}
           childrens={childrens}
@@ -75,8 +77,6 @@ export default function SearchedHotelsFeed({
   <div className="hidden lg:block w-[40%] sticky top-24 h-fit">
     <MapHotels
       hotels={data!}
-      hoveredHotel={hoveredHotel}
-      setHoveredHotel={setHoveredHotel}
     />
   </div>
 </div>

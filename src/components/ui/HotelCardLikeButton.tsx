@@ -12,7 +12,7 @@ export default function HotelCardLikeButton({ hotel }: { hotel: HotelOffer }) {
   const { user } = useAppSelector(selectAuth);
   const router = useRouter();
   const { addHotel, removeHotel, findFolderByHotelId, folders, createFolder } = useWishlist();
-
+  // console.log("like button")
   // keep SSR & client in sync
   const [liked, setLiked] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -22,11 +22,12 @@ export default function HotelCardLikeButton({ hotel }: { hotel: HotelOffer }) {
     setMounted(true);
     const folder = findFolderByHotelId(hotel.hotelId);
     if (folder) setLiked(true);
-  }, [hotel.hotelId, findFolderByHotelId]);
+  }, [hotel.hotelId]);
 
   const handleOnClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("Like button clicked")
 
     if (!user) {
       alert("Login required so login first");
@@ -35,19 +36,25 @@ export default function HotelCardLikeButton({ hotel }: { hotel: HotelOffer }) {
     }
 
     if (liked) {
+      console.log("i am ain the liked condition");
+      
       removeHotel(hotel.hotelId);
       setLiked(false);
       return;
     }
-
     setIsOpen(true);
   };
 
   const handleSaveToFolder = (folderName: string) => {
+    console.log("modal opened and folder selected")
     addHotel(folderName, hotel);
     setLiked(true);
     setIsOpen(false);
   };
+
+  useEffect(() => {
+  console.log("folders after update", folders);
+}, [folders]);
 
   // render neutral icon until mounted to avoid mismatch
   const heartClasses = mounted && liked

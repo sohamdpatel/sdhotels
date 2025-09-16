@@ -5,28 +5,28 @@ export default async function HotelDetailsPage({
   params,
   searchParams,
 }: {
-  params: { hotelId: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ hotelId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const hotelId = params.hotelId;
-
+  const {hotelId} = await params;
+  const {checkIn,checkOut,guests,adults,childrens} = await searchParams
   // Convert query params to numbers safely
-  const checkIn = searchParams.checkIn as string | undefined;
-  const checkOut = searchParams.checkOut as string | undefined;
-  const guests = searchParams.guests ? Number(searchParams.guests) : 1;
-  const adults = searchParams.adults ? Number(searchParams.adults) : 1;
-  const childrens = searchParams.childrens
-    ? Number(searchParams.childrens)
+  // const checkInDate =checkIn as string | undefined;
+  // const checkOutDate =checkOut as string | undefined;
+  const guestss =guests ? Number(guests) : 1;
+  const adultss =adults ? Number(adults) : 1;
+  const childrenss =childrens
+    ? Number(childrens)
     : 0;
 
   const hotelDetails = await hotelService.getHotelDetailsById(hotelId);
 
   // Example calculation logic
-  if (hotelDetails && guests && guests > 3) {
+  if (hotelDetails && guestss && guestss > 3) {
     console.log("i am in detail page condition");
 
     const price =
-      parseFloat(hotelDetails?.offer?.price?.total) * Math.ceil(guests / 3);
+      parseFloat(hotelDetails?.offer?.price?.total) * Math.ceil(guestss / 3);
 
     console.log("price after cal from detail server", price);
 
@@ -36,9 +36,9 @@ export default async function HotelDetailsPage({
   return (
     <HotelDetails
       hotelDetails={hotelDetails}
-      guests={guests}
-      adults={adults}
-      childrens={childrens}
+      guests={guestss}
+      adults={adultss}
+      childrens={childrenss}
     />
   );
 }
