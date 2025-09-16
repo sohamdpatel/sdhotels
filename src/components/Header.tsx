@@ -14,8 +14,8 @@ export default function Header() {
   //   console.log(state);
   // },[state])
   return (
-    <div className="w-full fixed md:relative top-0 z-50">
-    <header className={`sticky md:fixed flex md:block md:w-full top-0 bg-white shadow-sm md:shadow-none py-3 md:py-0 px-5 md:px-0`}>
+    <div className="w-full fixed md:relative top-0 z-50 ">
+    <header className={`max-w-[1840px] mx-auto sticky md:fixed flex md:block md:w-full top-0 bg-white shadow-sm md:shadow-none py-3 md:py-0 px-5 md:px-0`}>
       <div className="flex items-center justify-center md:justify-between md:px-6  md:h-24">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 mr-4 z-10">

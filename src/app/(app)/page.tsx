@@ -25,7 +25,7 @@ export default async function Home() {
   ];
 
   return (
-    <div className="font-sans md:min-h-screen  py-8 pt-24 px-4  space-y-16 md:p-10 lg:p-20 md:pt-[200px] lg:pt-[200px]">
+    <div className="font-sans md:min-h-screen max-w-[1840px] mx-auto py-8 pt-24 px-4  space-y-16 md:p-10 lg:p-20 md:pt-[200px] lg:pt-[200px]">
       {/* <div className="w-1/2"> */}
         {sections.map((section) => (
           <HotelsSlider

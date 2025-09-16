@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -35,8 +35,8 @@ export default function HotelsSlider<T>({
   loop = false,
   slidesPerView = {
     base: 2,
-    sm: 2,
-    md: 3,
+    sm: 3,
+    // md: 3,
     lg: 4,
     xl: 5,
     "2xl": 6,
@@ -48,8 +48,13 @@ export default function HotelsSlider<T>({
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
+  // ✅ Ensures navigation refs are attached after mount
+  useEffect(() => {
+    // nothing here; Swiper onBeforeInit will handle attaching
+  }, []);
+
   return (
-    <section className={`w-full ${className}`}>
+    <section className={`w-full h-auto ${className}`}>
       {title && (
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{title}</h2>
@@ -85,6 +90,10 @@ export default function HotelsSlider<T>({
         modules={[Navigation]}
         loop={loop}
         spaceBetween={spaceBetween}
+        // ✅ Force initial slidesPerView
+        slidesPerView={"auto"}
+        observer={true}
+        observeParents={true}
         navigation={{
           prevEl: prevRef.current,
           nextEl: nextRef.current,
@@ -107,8 +116,8 @@ export default function HotelsSlider<T>({
         }}
         breakpoints={{
           0: { slidesPerView: slidesPerView.base ?? 2, spaceBetween },
-          640: { slidesPerView: slidesPerView.sm ?? 2, spaceBetween },
-          768: { slidesPerView: slidesPerView.md ?? 3, spaceBetween },
+          640: { slidesPerView: slidesPerView.sm ?? 3, spaceBetween },
+          // 768: { slidesPerView: slidesPerView.md ?? 3, spaceBetween },
           1024: { slidesPerView: slidesPerView.lg ?? 4, spaceBetween },
           1280: { slidesPerView: slidesPerView.xl ?? 5, spaceBetween },
           1536: { slidesPerView: slidesPerView["2xl"] ?? 6, spaceBetween },

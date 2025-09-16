@@ -1,6 +1,7 @@
 "use client";
 
 import { GoogleMap, OverlayView, useLoadScript } from "@react-google-maps/api";
+import { Hotel } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type Hotel = {
@@ -12,12 +13,13 @@ type Hotel = {
   offer?: { price: { total: string; currency: string } };
 };
 
-const containerStyle = {
-  width: "100%",
-  height: "600px",
+type containerStyleProp = {
+  width: string,
+  height?: string,
 };
 
-export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel }: { hotels: any[], hoveredHotel: Hotel | null, setHoveredHotel: any }) {
+export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel, className, containerStyle = {width: "100%",
+  height: "600px",} }: { hotels: any[], hoveredHotel: Hotel | null, setHoveredHotel: any, className?: string, containerStyle?: containerStyleProp}) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
@@ -73,7 +75,7 @@ export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel }: { h
   if (!isLoaded) return <p>Loading map...</p>;
 
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={12} mapContainerClassName="flex-1 rounded-2xl">
+    <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={12} mapContainerClassName={`flex-1 rounded-2xl ${className}`}>
       {orderedHotels.map((hotel) => (
         <OverlayView 
           key={hotel.hotelId}
@@ -100,7 +102,7 @@ export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel }: { h
             }}
           >
             {/* Price bubble */}
-            <div
+            {hotel?.offer ? <div
               className={`px-3 py-1 rounded-full font-semibold text-sm cursor-pointer transition ${
                 selectedHotel?.hotelId === hotel.hotelId || hoveredHotel?.hotelId === hotel.hotelId
                   ? "bg-black text-white scale-110 z-50"
@@ -108,7 +110,15 @@ export default function MapHotels({ hotels, hoveredHotel, setHoveredHotel }: { h
               }`}
             >
               ₹{hotel.offer?.price?.total ?? "N/A"}
-            </div>
+            </div> : <div
+                      className={` p-3 rounded-full font-semibold text-sm cursor-pointer transition ${
+                selectedHotel?.hotelId === hotel.hotelId || hoveredHotel?.hotelId === hotel.hotelId
+                  ? "bg-black text-white scale-110 z-50"
+                  : "bg-white text-black shadow"
+              }`}
+                    >
+                      <Hotel />
+                    </div>}
 
             {/* Detail card when selected */}
             {selectedHotel?.hotelId === hotel.hotelId && (

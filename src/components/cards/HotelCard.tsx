@@ -8,7 +8,7 @@ function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens =
   let price;
   if( guests > 3){
 
-    const hotelprice = parseFloat(parseFloat(hotel?.offer?.price?.total).toFixed(2))
+    const hotelprice = parseFloat(parseFloat(hotel?.offer?.price?.total!).toFixed(2))
     const room = Math.ceil(guests / 3)
     price = parseFloat((hotelprice  * room).toFixed(2))
     console.log("price from cards",hotel?.name, price , hotelprice, room);
@@ -20,7 +20,7 @@ function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens =
 
   const content = (
     <div
-      className={`flex flex-col max-w-md ${
+      className={`flex flex-col xl:max-w-[262.3px] lg:max-w-[267.8px]  md:max-w-[300px] max-w-[295px] h-fit ${
         hasOffer ? "cursor-pointer" : "cursor-not-allowed"
       }`}
       onMouseEnter={() => setHoveredHotel && setHoveredHotel(hotel)}
@@ -37,7 +37,7 @@ function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens =
           Guest favourite
         </div>
         {/* Heart icon */}
-        <HotelCardLikeButton />
+        <HotelCardLikeButton hotel={hotel} />
       </div>
  
       {/* Hotel Info */}
@@ -69,12 +69,12 @@ function HotelCard({ hotel, setHoveredHotel, guests = 1, adults = 1, childrens =
 
 
   return hasOffer ? (
-    <Link href={`/hotels/${hotel?.hotelId}?checkIn=${hotel?.offer?.checkInDate}&checkOut=${hotel?.offer?.checkInDate}&guests=${guests}&adults=${adults}&childrens=${childrens}&`} target="_blank" 
-        rel="noopener noreferrer" key={hotel?.hotelId}>
+    <Link href={`/hotels/${hotel?.hotelId}?checkIn=${hotel?.offer?.checkInDate}&checkOut=${hotel?.offer?.checkOutDate}&guests=${guests}&adults=${adults}&childrens=${childrens}&`} target="_blank" 
+        rel="noopener noreferrer" key={hotel?.hotelId} className=" h-fit">
       {content}
     </Link>
   ) : (
-    <div key={hotel?.hotelId}>{content}</div>
+    <div className=" h-fit" key={hotel?.hotelId}>{content}</div>
   );
 }
 

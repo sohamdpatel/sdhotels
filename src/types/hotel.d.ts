@@ -16,7 +16,7 @@ interface HotelOffer {
   lastUpdate: string; // ISO date string
   masterChainCode: string;
   name: string;
-  offer: HotelOffersOffer;
+  offer?: HotelOffersOffer;
   self: string;
 }
 

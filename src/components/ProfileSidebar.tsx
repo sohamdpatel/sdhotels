@@ -9,7 +9,7 @@ export default function ProfileSidebar() {
   const router = useRouter();
 
   const goTo = (url: string) => {
-    router.push(url, { scroll: false });
+    router.push(url);
   };
 
   const menu = [

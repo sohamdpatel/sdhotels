@@ -38,7 +38,7 @@ export function useHotelById(hotelId: string) {
 export function useHotelOffers(hotelIds: string[]) {
   return useQuery({
     queryKey: ["hotelOffers", hotelIds],
-    queryFn: () => hotelService.getHotelOffers(hotelIds),
+    queryFn: () => hotelService.getHotelOffers(hotelId),
     enabled: !!hotelIds,
   });
 } 

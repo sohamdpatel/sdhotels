@@ -12,15 +12,7 @@ export default function ProfileLayout({
     <div>
       <Header />
       <div className=" w-full h-24"></div>
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="w-1/3 border-r min-h-screen">
-          <ProfileSidebar />
-        </div>
-
-        {/* Content */}
-        <main className="flex-1 py-9 md:px-[calc(7.5%+32px)] lg:px-[calc(3%+10px)]  xl:px-[calc(7.5%+32px)] min-h-screen">{children}</main>
-      </div>
+        <main className="flex-1 md:px-[calc(7.5%+32px)] lg:px-[calc(3%+10px)]  xl:px-[calc(7.5%+32px)] min-h-[calc(100vh-96px)]">{children}</main>
       <Footer />
     </div>
   );

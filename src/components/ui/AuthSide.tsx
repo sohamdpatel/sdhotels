@@ -45,13 +45,13 @@ export default function AuthSide() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link href="/profile" className=" font-semibold text-[16px]"><User className=" text-black"/>Profile</Link>
+              <Link href="/user/profile" className=" font-semibold text-[16px]"><User className=" text-black"/>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/trips"className=" font-semibold text-[16px]"><User className=" text-black"/>Trips</Link>
+              <Link href="/user/wishlists"className=" font-semibold text-[16px]"><User className=" text-black"/>Wishlists</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/messages" className=" font-semibold text-[16px]"><User className=" text-black"/>Messages</Link>
+              <Link href="/messages" className=" font-semibold text-[16px]"><User className=" text-black"/>Recent Viewed</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => dispatch(logout())}>
