@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useWishlist } from "@/hooks/wishlist.hooks";
 import Image from "next/image";
 import Link from "next/link";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function WishlistsPage() {
-  const { folders } = useWishlist();
+  const { folders, deleteFolder } = useWishlist();
   const [mounted, setMounted] = useState(false);
 
   // Wait until after mount to render client data
@@ -47,32 +49,78 @@ export default function WishlistsPage() {
             <Link
               href={`/user/wishlists/${encodeURIComponent(folder)}`}
               key={folder}
-              className="block rounded-2xl overflow-hidden shadow hover:shadow-lg transition"
+              className="block rounded-2xl transition group relative"
             >
-              <div className="grid grid-cols-2 grid-rows-2 h-48">
-                {hotels.slice(0, 4).map((hotel, i) => (
-                  <Image
-                    key={i}
-                    src={coverImg}
-                    alt={hotel.name || "Hotel"}
-                    width={300}
-                    height={200}
-                    className={`object-cover w-full h-full ${
-                      i === 0 && hotels.length < 4
-                        ? "col-span-2 row-span-2"
-                        : ""
-                    }`}
-                  />
-                ))}
-                {hotels.length === 0 && (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault(); // prevent <Link> navigation
+                  e.stopPropagation(); // stop bubbling up
+                  deleteFolder(folder);
+                }}
+                className=" h-auto hidden group-hover:block top-2 left-2 bg-white shadow-2xl hover:scale-110 hover:bg-white rounded-full text-black absolute has-[>svg]:px-2 p-2"
+              >
+                <X />
+              </Button>
+              <div className="grid grid-cols-2 grid-rows-2 gap-1 aspect-square overflow-hidden rounded-2xl shadow-lg group-hover:shadow-xl border">
+                {hotels.length === 1 && (
                   <Image
                     src={coverImg}
-                    alt="cover"
-                    width={300}
-                    height={200}
+                    alt={hotels[0]?.name || "Hotel"}
+                    width={600}
+                    height={600}
                     className="object-cover w-full h-full col-span-2 row-span-2"
                   />
                 )}
+
+                {hotels.length === 2 &&
+                  hotels
+                    .slice(0, 2)
+                    .map((hotel, i) => (
+                      <Image
+                        key={i}
+                        src={coverImg}
+                        alt={hotel.name || "Hotel"}
+                        width={300}
+                        height={300}
+                        className="object-cover w-full h-full col-span-1 row-span-2"
+                      />
+                    ))}
+
+                {hotels.length === 3 && (
+                  <>
+                    <Image
+                      src={coverImg}
+                      alt={hotels[0]?.name || "Hotel"}
+                      width={600}
+                      height={300}
+                      className="object-cover w-full h-full col-span-2 row-span-1"
+                    />
+                    {hotels.slice(1, 3).map((hotel, i) => (
+                      <Image
+                        key={i}
+                        src={coverImg}
+                        alt={hotel.name || "Hotel"}
+                        width={300}
+                        height={300}
+                        className="object-cover w-full h-full col-span-1 row-span-1"
+                      />
+                    ))}
+                  </>
+                )}
+
+                {hotels.length >= 4 &&
+                  hotels
+                    .slice(0, 4)
+                    .map((hotel, i) => (
+                      <Image
+                        key={i}
+                        src={coverImg}
+                        alt={hotel.name || "Hotel"}
+                        width={300}
+                        height={300}
+                        className="object-cover w-full h-full"
+                      />
+                    ))}
               </div>
 
               <div className="p-3">

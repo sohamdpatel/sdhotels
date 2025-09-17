@@ -28,18 +28,20 @@ import { Calendar } from "@/components/ui/calendar";
 import { searchSchema } from "@/schemas/search.schema";
 import { debounce } from "@/lib/debounce";
 import { hotelService } from "@/data-services/hotelData";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type FormData = z.infer<typeof searchSchema>;
 
 export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
 
    const router = useRouter();
+   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
+
   const [guestPopover, setGuestPopover] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -51,20 +53,22 @@ export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
   const adultsParam = Number(searchParams.get("adults")) || 0;
   const childrenParam = Number(searchParams.get("children")) || 0;
 
+  const isHotelDetails = pathname.startsWith("/hotels/") && pathname !== "/hotels/s";
+
   const form = useForm<FormData>({
     resolver: zodResolver(searchSchema),
-    defaultValues: {
-      cityCode: cityParam,
-      dateRange: {
-        from: checkInParam ? checkInParam : undefined,
-        to: checkOutParam ? checkOutParam : undefined,
-      },
-      guests: {
-        adults: adultsParam,
-        children: childrenParam,
-        infants: 0,
-        pets: 0,
-      },
+    defaultValues: { 
+      cityCode: isHotelDetails ? undefined : cityParam,
+    dateRange: {
+      from: isHotelDetails ? undefined : (checkInParam || undefined),
+      to: isHotelDetails ? undefined : (checkOutParam || undefined),
+    },
+    guests: {
+      adults: isHotelDetails ? undefined : adultsParam,
+      children: isHotelDetails ? undefined : childrenParam,
+      infants: 0,
+      pets: 0,
+    },
     },
   });
   useEffect(() => {

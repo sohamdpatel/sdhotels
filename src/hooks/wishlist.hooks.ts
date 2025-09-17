@@ -62,7 +62,6 @@ export function useWishlist() {
 
   const findFolderByHotelId = useCallback(
     (hotelId: string | number): string | null => {
-      console.log("findFolderByHotelId runs")
       const idNorm = normalizeId(hotelId);
       for (const folder in folders) {
         if (
@@ -91,12 +90,25 @@ export function useWishlist() {
   );
 
   const getFolder = useCallback(
-    
     (folderName: string) => {
-      console.log("getfolders")
       return folders?.[folderName] ?? [];
     },
     [folders]
+  );
+
+  // 🆕 Delete entire folder
+  const deleteFolder = useCallback(
+    (folderName: string): boolean => {
+      if (!folderName) return false;
+      setFolders((prev = {}) => {
+        if (!prev[folderName]) return prev; // nothing to delete
+        const updated = { ...prev };
+        delete updated[folderName];
+        return updated;
+      });
+      return true;
+    },
+    [setFolders]
   );
 
   return {
@@ -106,5 +118,6 @@ export function useWishlist() {
     createFolder,
     getFolder,
     findFolderByHotelId,
+    deleteFolder, // 🆕 export
   };
 }

@@ -52,6 +52,7 @@ interface HotelOffersOffer {
       currency: string;
       base: string;
       total: string;
+      baseTotal?: string
       taxes: {
         code: string;
         included: boolean;
