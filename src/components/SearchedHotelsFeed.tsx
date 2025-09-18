@@ -72,7 +72,6 @@ export default function SearchedHotelsFeed({
       <p>No hotels found</p>
     )}
   </div>
-
   {/* Sticky Map */}
   <div className="hidden lg:block w-[40%] sticky top-28 h-fit">
     <MapHotels
@@ -80,6 +79,5 @@ export default function SearchedHotelsFeed({
     />
   </div>
 </div>
-
   );
 }

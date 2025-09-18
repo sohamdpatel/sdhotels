@@ -7,10 +7,19 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { selectAuth, logout } from "@/redux/slices/authSlice";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+
 
 export default function AuthSide() {
   const { user } = useAppSelector(selectAuth);
   const dispatch = useAppDispatch();
+
+  const pathname = usePathname();
+  
+    const showThis =
+      !pathname.startsWith("/book"); 
+
+      if(!showThis) return null;
 
   return (
     <DropdownMenu modal={false}>

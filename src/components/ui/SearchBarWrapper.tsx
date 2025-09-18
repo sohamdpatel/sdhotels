@@ -18,7 +18,7 @@ export default function SearchBarWrapper() {
     // const expandOnScroll =
     // !(pathname.startsWith("/hotels/s")); // disable scroll expansion on /hotels/s
   const showWrapper =
-    !(pathname === "/login" || pathname === "/register" || pathname.startsWith("/user/profile") || pathname.startsWith("/user/wishlists")); 
+    !(pathname === "/login" || pathname === "/register" || pathname.startsWith("/user") || pathname.startsWith("/book")); 
 
   useEffect(() => {
     // if (!expandOnScroll) return;
