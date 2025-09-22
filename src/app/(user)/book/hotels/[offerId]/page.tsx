@@ -12,90 +12,22 @@ import {
   Landmark,
   Smartphone,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-// type FormValues = {
-//   paymentMethod: "upi" | "card" | "netbanking";
-//   upiId?: string;
-//   cardNumber?: string;
-//   expiry?: string;
-//   cvv?: string;
-//   cardholder?: string;
-//   bankName?: string;
-// };
-
-const formSchema = z.discriminatedUnion("paymentMethod", [
-  // 🔹 UPI
-  z.object({
-    paymentMethod: z.literal("upi"),
-    upiId: z
-      .string()
-      .trim()
-      .min(1, "UPI ID is required")
-      .regex(/^[\w.\-]{2,}@[a-zA-Z]{2,}$/, "Invalid UPI ID (e.g. name@bank)"),
-  }),
-
-  // 🔹 Card
-  z.object({
-    paymentMethod: z.literal("card"),
-    cardNumber: z
-      .string()
-      .trim()
-      .regex(/^\d{16,19}$/, "Card number must be 16–19 digits"),
-    expiry: z
-      .string()
-      .trim()
-      .regex(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, "Invalid expiration (MM/YY)")
-      .refine(
-        (val) => {
-          const [month, year] = val.split("/").map((v) => parseInt(v, 10));
-          if (!month || !year) return false;
-
-          const now = new Date();
-          const currentMonth = now.getMonth() + 1;
-          const currentYear = now.getFullYear() % 100;
-
-          if (year < currentYear) return false;
-          if (year === currentYear && month < currentMonth) return false;
-
-          return true;
-        },
-        { message: "Expiration date must be in the future" }
-      ),
-
-    cvv: z
-      .string()
-      .trim()
-      .regex(/^\d{3,4}$/, "Invalid CVV"),
-    cardholder: z
-      .string()
-      .trim()
-      .min(1, "Cardholder name is required")
-      .regex(/^[a-zA-Z ]+$/, "Only letters and spaces allowed"),
-  }),
-
-  // 🔹 Netbanking
-  z.object({
-    paymentMethod: z.literal("netbanking"),
-    bankName: z
-      .string()
-      .trim()
-      .min(1, "Bank name is required")
-      .regex(/^[a-zA-Z ]+$/, "Bank name must be letters only"),
-  }),
-]);
-
-type FormValues = z.infer<typeof formSchema>;
+import { formSchema, FormValues } from "@/schemas/book.schema";
+import Modal from "@/components/ui/Modal";
+import ConfirmBookingModal from "@/components/modals/ConfirmBookingModal";
 
 // type FormValues = z.infer<typeof formSchema>;
 export default function BookingPage() {
   const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
   const [formData, setFormData] = useState<FormValues | null>(null);
-
+  const [isOpen, setIsOpen] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -116,7 +48,7 @@ export default function BookingPage() {
   return (
     <>
       {/* header */}
-      <div className="max-w-[1840px] mx-auto flex md:block md:w-full top-0 bg-white shadow-sm py-3 md:py-0 px-5 md:px-0">
+      <header className="max-w-[1840px] mx-auto flex md:block md:w-full top-0 bg-white shadow-sm py-3 md:py-0 px-5 md:px-0">
         <div className="flex items-center justify-center md:justify-between md:px-6 md:h-24">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 mr-4 z-10">
@@ -126,10 +58,10 @@ export default function BookingPage() {
             </span>
           </Link>
         </div>
-      </div>
+      </header>
 
       {/* main */}
-      <div className="w-full">
+      <main className="w-full">
         <div className="max-w-[1024px] mx-auto p-4 min-[848px]:p-10 flex md:justify-center lg:justify-normal">
           <div>
             <div className="bg-gray-200 p-2 rounded-full w-fit sticky top-4 sm:top-10 z-20">
@@ -147,7 +79,7 @@ export default function BookingPage() {
               className="flex flex-col-reverse md:flex-row gap-6 transition-all ease-out"
             >
               {/* left content */}
-              <div className="flex-1 space-y-6">
+              <section className="flex-1 space-y-6">
                 {/* Step 1 */}
                 <Card className="p-6 rounded-2xl shadow-sm">
                   {!isPaymentConfirmed ? (
@@ -415,23 +347,40 @@ export default function BookingPage() {
                   <h2 className="text-xl font-semibold">
                     2. Review your reservation
                   </h2>
-                  {isPaymentConfirmed && <>
-                  <p className="text-sm text-gray-600 mt-2">
-                    By selecting the button, I agree to the{" "}
-                    <span className="underline cursor-pointer">
-                      booking terms
-                    </span>
-                    .
-                  </p>
-                  <Button className="mt-6 w-full bg-pink-600 hover:bg-pink-700">
-                    Confirm and pay
-                  </Button>
-                  </>}
+                  {isPaymentConfirmed && (
+                    <>
+                      <p className="text-sm text-gray-600 mt-2">
+                        By selecting the button, I agree to the{" "}
+                        <span className="underline cursor-pointer">
+                          booking terms
+                        </span>
+                        .
+                      </p>
+                      <Button
+                        onClick={() => {
+                          setButtonLoading(true);
+
+                          setTimeout(() => {
+                            setIsOpen(true);
+                            setButtonLoading(false); // ✅ stop loader after task
+                          }, 3000);
+                        }}
+                        disabled={buttonLoading} // optional: disable button during loading
+                        className="mt-6 w-full bg-pink-600 hover:bg-pink-700"
+                      >
+                        {buttonLoading ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          "Confirm and pay"
+                        )}
+                      </Button>
+                    </>
+                  )}
                 </Card>
-              </div>
+              </section>
 
               {/* right */}
-              <div className="md:w-[300px] lg:w-[350px]">
+              <section className="md:w-[300px] lg:w-[350px]">
                 <Card className="p-6 rounded-2xl shadow-sm sticky top-10">
                   <div className="flex gap-4">
                     <Image
@@ -495,13 +444,19 @@ export default function BookingPage() {
                     </button>
                   </div>
                 </Card>
-              </div>
+              </section>
             </form>
           </div>
         </div>
-      </div>
+      </main>
       {/* footer */}
-      <div className="h-24 w-full bg-gray-200"></div>
+      <footer className="h-24 w-full bg-gray-200"></footer>
+      {isOpen && (
+        <ConfirmBookingModal
+          onClose={() => setIsOpen(false)}
+          hotelDetails={"Hello"}
+        />
+      )}
     </>
   );
 }

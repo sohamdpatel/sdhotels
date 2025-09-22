@@ -1,8 +1,8 @@
 import React from "react";
 
-function HotelCardSkeleton() {
+function HotelCardSkeleton( {className}: {className?: string}) {
   return (
-    <div className="flex flex-col max-w-md animate-pulse">
+    <div className={`flex flex-col max-w-md animate-pulse ${className}`}>
       {/* Image Skeleton */}
       <div className="relative">
         <div className="w-full aspect-square rounded-3xl bg-gray-300" />

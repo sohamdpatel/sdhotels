@@ -156,7 +156,7 @@ export default function MapHotels({
     }
   }, [hotels]);
 
-  if (!isLoaded) return <p>Loading map...</p>;
+  if (!isLoaded) return <div style={containerStyle} className=" h-full w-full bg-gray-400 animate-pulse"></div>;
 
   return (
     <GoogleMap

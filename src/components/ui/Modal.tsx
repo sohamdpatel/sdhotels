@@ -13,7 +13,7 @@ export default function Modal({
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="relative max-w-lg w-full m-4">
+      <div className="relative min-w-lg w-fit m-4">
         <button
           onClick={onClose}
           className="absolute -top-3 -right-3 z-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
@@ -35,7 +35,7 @@ export default function Modal({
           </svg>
         </button>
 
-        <div className="bg-white dark:bg-[#303030] rounded-2xl shadow-xl p-6">
+        <div className="bg-white dark:bg-[#303030] rounded-2xl shadow-xl p-6 w-full">
           {children}
         </div>
       </div>

@@ -1,20 +1,16 @@
 // app/components/Header.tsx
-// 'use client'
+'use client'
 import Link from "next/link";
-import { Menu, Globe, User } from "lucide-react";
-import SearchBar from "./ui/SearchBar";
+import { Globe } from "lucide-react";
 import MobileSearch from "./MobileSearch";
 import AuthSide from "./ui/AuthSide";
 import SearchBarWrapper from "./ui/SearchBarWrapper"; 
-// import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation"; 
 
-export default function Header() {  
-  // const [state, setState] = useState(false)
-  // useEffect(()=>{ 
-  //   console.log(state);
-  // },[state])
-  return (
-    <div className="w-full fixed md:relative top-0 z-50 ">
+export default function Header() {
+  const pathname = usePathname()
+  return <div className={`w-full fixed md:relative top-0 z-50 
+  ${pathname.startsWith("/user") ? "md:block hidden" : " "}`}>
     <header className={`max-w-[1840px] mx-auto sticky md:fixed flex md:block md:w-full top-0 bg-white shadow-sm md:shadow-none py-3 md:py-0 px-5 md:px-0`}>
       <div className="flex items-center justify-center md:justify-between md:px-6  md:h-24">
         {/* Logo */}
@@ -44,7 +40,5 @@ export default function Header() {
       {/* mobile search */}
         <MobileSearch />
     </header>
-    {/* <div className={`${state ? "h-48" : "h-0"} duration-300 transition-all ease-out`}> Hello</div> */}
     </div>
-  );
 }

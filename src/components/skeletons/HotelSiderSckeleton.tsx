@@ -7,35 +7,17 @@ import { Navigation } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import HotelCardSkeleton from "../cards/HotelCardsckeleton";
+import HotelCardSkeleton from "./HotelCardsckeleton";
 // import HotelCardSkeleton from "../cards/HotelCardSkeleton";
 
 type HotelsSliderSkeletonProps = {
   title?: string;
   slides?: number; // how many skeleton cards to render
-  slidesPerView?: {
-    base?: number;
-    sm?: number;
-    md?: number;
-    lg?: number;
-    xl?: number;
-    "2xl"?: number;
-  };
-  spaceBetween?: number;
 };
 
 export default function HotelsSliderSkeleton({
   title = "Loading hotels...",
   slides = 6,
-  spaceBetween = 16,
-  slidesPerView = {
-    base: 2,
-    sm: 2,
-    md: 3,
-    lg: 4,
-    xl: 5,
-    "2xl": 6,
-  },
 }: HotelsSliderSkeletonProps) {
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);
@@ -69,24 +51,25 @@ export default function HotelsSliderSkeleton({
         </div>
       )}
 
-      <Swiper
-        modules={[Navigation]}
-        spaceBetween={spaceBetween}
-        breakpoints={{
-          0: { slidesPerView: slidesPerView.base ?? 2, spaceBetween },
-          640: { slidesPerView: slidesPerView.sm ?? 2, spaceBetween },
-          768: { slidesPerView: slidesPerView.md ?? 3, spaceBetween },
-          1024: { slidesPerView: slidesPerView.lg ?? 4, spaceBetween },
-          1280: { slidesPerView: slidesPerView.xl ?? 5, spaceBetween },
-          1536: { slidesPerView: slidesPerView["2xl"] ?? 6, spaceBetween },
-        }}
-      >
-        {Array.from({ length: slides }).map((_, i) => (
-          <SwiperSlide key={i}>
-            <HotelCardSkeleton />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </section>
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 overflow-hidden gap-4">
+  {/* Always show first two */}
+  <HotelCardSkeleton />
+  <HotelCardSkeleton />
+
+  {/* Show only ≥ sm */}
+  <HotelCardSkeleton className="hidden md:block" />
+
+  {/* Show only ≥ md */}
+  <HotelCardSkeleton className="hidden lg:block" />
+
+  {/* Show only ≥ lg */}
+  <HotelCardSkeleton className="hidden xl:block" />
+
+  {/* Show only ≥ xl */}
+  <HotelCardSkeleton className="hidden 2xl:block" />
+</div>
+
+
+    </section>    
   );
 }

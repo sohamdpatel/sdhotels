@@ -1,12 +1,10 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import HotelCard from "@/components/cards/HotelCard";
 import { hotelService } from "@/data-services/hotelData";
 import MapHotels from "./MapHotels";
-import { useState } from "react";
-import { boolean } from "zod";
+import SearchHotelsFeedSkeleton from "./skeletons/SearchHotelsFeedSkeleton";
 
 type Props = {
   city: string;
@@ -41,15 +39,9 @@ export default function SearchedHotelsFeed({
       return allHotels
     },
     staleTime: 60 * 60 * 1000
-  });
+  })
 
-  // const handlePageChange = (newPage: number) => {
-  //   const params = new URLSearchParams(searchParams.toString());
-  //   params.set("page", String(newPage));
-  //   router.push(`/search?${params.toString()}`);
-  // };
-
-  if (isLoading) return <p>Loading hotels...</p>; 
+  if (isLoading) return <SearchHotelsFeedSkeleton />
   if (error) return <p>Failed to load hotels</p>;
 
   // const totalPages = Math.ceil((data?.total ?? 0) / PAGE_SIZE);
@@ -57,7 +49,7 @@ export default function SearchedHotelsFeed({
   return (
     <div className="w-full flex gap-5">
   {/* Hotels Grid */}
-  <div className="grid gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 flex-2">
+  <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 flex-2">
     {data?.length ? (
       data?.map((hotel: any) => (
         <HotelCard

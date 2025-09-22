@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WishlistSkeleton from "@/components/skeletons/WishlistSkeleton";
+
 
 export default function WishlistsPage() {
   const { folders, deleteFolder } = useWishlist();
@@ -19,8 +21,8 @@ export default function WishlistsPage() {
   if (!mounted) {
     return (
       <div className="max-w-6xl mx-auto py-10">
-        <h1 className="text-3xl font-bold mb-4">Wishlists</h1>
-        <p className="text-gray-500">Loading your wishlists…</p>
+        <h1 className="text-3xl font-bold mb-8">Wishlists</h1>
+        <WishlistSkeleton />
       </div>
     );
   }
@@ -39,7 +41,7 @@ export default function WishlistsPage() {
   return (
     <div className="max-w-6xl mx-auto py-10">
       <h1 className="text-3xl font-bold mb-8">Wishlists</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {folderNames.map((folder) => {
           const hotels = folders[folder];
           const coverImg =

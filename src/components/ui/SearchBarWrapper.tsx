@@ -66,7 +66,7 @@ export default function SearchBarWrapper() {
     }
   }, [isExpanded]);
 
-  if (!showWrapper) return <div className=" fixed left-0 w-full h-24 shadow-sm"></div>; // 🔴 don’t render at all
+  if (!showWrapper) return <div className=" fixed left-0 w-full md:h-24 shadow-sm"></div>; // 🔴 don’t render at all
 
   return (
     <div

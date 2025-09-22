@@ -8,6 +8,7 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import HotelCard from "../cards/HotelCard";
+import HotelsSliderSkeleton from "../skeletons/HotelSiderSckeleton";
 
 type HotelsSliderProps<T> = {
   title?: string;
@@ -47,11 +48,15 @@ export default function HotelsSlider<T>({
 
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+  
 
-  // ✅ Ensures navigation refs are attached after mount
-  useEffect(() => {
-    // nothing here; Swiper onBeforeInit will handle attaching
-  }, []);
+ const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
+
+if (!mounted) return <HotelsSliderSkeleton />; 
 
   return (
     <section className={`w-full h-auto ${className}`}>
@@ -90,8 +95,6 @@ export default function HotelsSlider<T>({
         modules={[Navigation]}
         loop={loop}
         spaceBetween={spaceBetween}
-        // ✅ Force initial slidesPerView
-        slidesPerView={"auto"}
         observer={true}
         observeParents={true}
         navigation={{

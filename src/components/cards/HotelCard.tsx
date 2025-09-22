@@ -23,7 +23,7 @@ const setHoveredHotelId = useHotelHoverStore((state) => state.setHoveredHotelId)
 
   const content = (
     <div
-      className={`flex flex-col xl:max-w-[262.3px] lg:max-w-[267.8px]  md:max-w-[300px] max-w-[295px] h-fit ${
+      className={`flex flex-col mx-auto xl:max-w-[262.3px] lg:max-w-[267.8px]  md:max-w-[300px] max-w-[295px] h-fit ${
         hasOffer ? "cursor-pointer" : "cursor-not-allowed"
       }`}
       onMouseEnter={() => setHoveredHotelId && setHoveredHotelId(hotel?.hotelId)}

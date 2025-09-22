@@ -1,6 +1,6 @@
 
 
-import HotelsSliderSkeleton from "@/components/ui/HotelSiderSckeleton";
+import HotelsSliderSkeleton from "@/components/skeletons/HotelSiderSckeleton";
 
 export default function Loading() {
   return (

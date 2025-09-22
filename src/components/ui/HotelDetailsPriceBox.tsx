@@ -305,6 +305,7 @@ const debouncedUpdateUrl = useMemo(
                         <Button
                           type="button"
                           size="icon"
+                          disabled={field.value[type as keyof typeof field.value] <= 0}
                           variant="outline"
                           onClick={() =>
                             field.onChange({
@@ -326,6 +327,7 @@ const debouncedUpdateUrl = useMemo(
                           type="button"
                           size="icon"
                           variant="outline"
+                          disabled={field.value[type as keyof typeof field.value] >= 9}
                           onClick={() =>
                             field.onChange({
                               ...field.value,

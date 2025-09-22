@@ -21,11 +21,11 @@ export default function BottomNav() {
           <Search className="h-5 w-5" />
           <span className="text-xs">Explore</span>
         </Link>
-        <Link href="/wishlist" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/wishlist" ? " text-red-400 " : " "}`}>
+        <Link href="/user/wishlists  " className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/user/wishlists" ? " text-red-400 " : " "}`}>
           <Heart className="h-5 w-5" />
           <span className="text-xs">Wishlist</span>
         </Link>
-        <Link href="/recent" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/recent" ? " text-red-400 " : " "}`}>
+        <Link href="/messages" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/recent" ? " text-red-400 " : " "}`}>
           <History className="h-5 w-5" />
           <span className="text-xs">Recent Viewed</span>
         </Link>
@@ -33,7 +33,7 @@ export default function BottomNav() {
           <MessageCircle className="h-5 w-5" />
           <span className="text-xs">Messages</span>
         </Link> */}
-        <Link href="/profile" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/profile" ? " text-red-400 " : " "}`}>
+        <Link href="/user/profile" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/profile" ? " text-red-400 " : " "}`}>
           <User className="h-5 w-5" />
           <span className="text-xs">Profile</span>
         </Link>
