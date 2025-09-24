@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function ConfirmBookingModal({hotelDetails,onClose}: {hotelDetails: any,onClose: () => void}){
     return (
         <Modal onClose={onClose}>
-            <div className=" flex flex-col justify-center items-center gap-6 w-full">
+            <div className=" flex flex-col justi not-first-of-type:fy-center items-center gap-6 w-full">
                 <div className=" p-7 bg-green-500 rounded-full w-fit text-white"><Check strokeWidth={3} className="w-10 h-10"/></div>
                 <div className=" flex flex-col justify-center items-center gap-2 text-2xl font-extrabold">
                     <h1>

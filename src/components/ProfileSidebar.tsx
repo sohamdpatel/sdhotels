@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { User, Briefcase, Users } from "lucide-react"; // icons
 import Image from "next/image";
 import Link from "next/link";
 
@@ -113,8 +112,20 @@ export default function ProfileSidebar() {
       </div>
     </Link>
   </div>
-</aside>
 
+  {/* Log out */}
+  <div className="mx-auto w-full max-w-[25rem] mb-10">
+    <button
+      className="w-full shadow-xl rounded-2xl border px-4 py-3 flex items-center gap-4"
+    >
+      <Image width={60} height={60} alt="connection menu icon" src={"/log-out.png"} />
+      <div>
+        <p className="font-medium text-left">Log out</p>
+        <p className="text-sm text-gray-600 text-left">See you soon! You’ll be logged out</p>
+      </div>
+    </button> 
+  </div>  
+</aside>
     </>
 
   );

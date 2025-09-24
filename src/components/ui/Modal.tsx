@@ -1,4 +1,6 @@
-import React from "react";
+'use client'
+
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 
 export default function Modal({
@@ -10,6 +12,18 @@ export default function Modal({
 }) {
   // Make sure we’re on the client
   if (typeof document === "undefined") return null;
+  useEffect(() => {
+    // lock background scroll
+    document.body.style.overflow = 'hidden';
+    console.log("modal mount");
+    
+    return () => {
+      // restore when modal unmounts
+      document.body.style.overflow = '';
+    console.log("modal unmount");
+
+    };
+  }, []);
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center z-50">
@@ -35,7 +49,7 @@ export default function Modal({
           </svg>
         </button>
 
-        <div className="bg-white dark:bg-[#303030] rounded-2xl shadow-xl p-6 w-full">
+        <div className="bg-white dark:bg-[#303030] rounded-2xl shadow-xl p-6 w-full overflow-y-auto">
           {children}
         </div>
       </div>

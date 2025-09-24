@@ -9,21 +9,19 @@ import { Suspense } from "react";
 
 export default async function Home() {
   // Run all API calls in parallel 🚀
-  // const [ahmedabad, delhi, goa] = await Promise.all([
-  //   // hotelService.getHotelsByGeo(23.0225, 72.5714), // Nearby Ahmedabad
-  //   hotelService.getHotelsByCity("AMD"),
-  //   hotelService.getHotelsByCity("DEL"),
-  //   hotelService.getHotelsByCity("GOI"),
-  //   // hotelService.searchAvailableHotelsV2("GOI", "2025-09-22", "2025-09-25", 2)
-  // ]);
+  const [ahmedabad, delhi, goa] = await Promise.all([
+    // hotelService.getHotelsByGeo(23.0225, 72.5714), // Nearby Ahmedabad
+    hotelService.getHotelsByCity("AMD"),
+    hotelService.getHotelsByCity("DEL"),
+    hotelService.getHotelsByCity("GOI"),    
+    // hotelService.searchAvailableHotelsV2("GOI", "2025-09-22", "2025-09-25", 2)
+  ]);
   // console.log("hotels from home", delhi);
-  
-
   const sections = [
-    { title: "Nearby Hotels", hotels:  [] },
-    // { title: "Ahmedabad Hotels", hotels: ahmedabad || [] },
-    // { title: "Delhi Hotels", hotels: delhi || [] },
-    // { title: "Goa Hotels", hotels: goa || [] },
+    // { title: "Nearby Hotels", hotels:  [] },
+    { title: "Ahmedabad Hotels", hotels: ahmedabad || [] },
+    { title: "Delhi Hotels", hotels: delhi || [] },
+    { title: "Goa Hotels", hotels: goa || [] },
   ];
 
   return (

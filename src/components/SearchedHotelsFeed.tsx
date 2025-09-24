@@ -40,14 +40,14 @@ export default function SearchedHotelsFeed({
     },
     staleTime: 60 * 60 * 1000
   })
-
+ 
   if (isLoading) return <SearchHotelsFeedSkeleton />
   if (error) return <p>Failed to load hotels</p>;
 
   // const totalPages = Math.ceil((data?.total ?? 0) / PAGE_SIZE);
 
   return (
-    <div className="w-full flex gap-5">
+    <div className="w-full flex gap-5 mb-15 md:mb-0">
   {/* Hotels Grid */}
   <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 flex-2">
     {data?.length ? (

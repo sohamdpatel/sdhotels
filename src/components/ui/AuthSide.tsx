@@ -8,13 +8,21 @@ import { selectAuth, logout } from "@/redux/slices/authSlice";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 
 export default function AuthSide() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { user } = useAppSelector(selectAuth);
   const dispatch = useAppDispatch();
 
   const pathname = usePathname();
+  if (!mounted) return null;
   
     const showThis =
       !pathname.startsWith("/book"); 

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft } from "lucide-react";
@@ -12,6 +12,18 @@ interface Props {
 
 export default function ProfileMainModal({ children, onClose, open }: Props) {
   if (typeof window === "undefined") return null; // for SSR
+  useEffect (() => {
+      // lock background scroll
+      document.body.style.overflow = 'hidden';
+      console.log("modal mount");
+      
+      return () => {
+        // restore when modal unmounts
+        document.body.style.overflow = '';
+      console.log("modal unmount");
+  
+      };
+    }, []);
 
   return ReactDOM.createPortal(
     <AnimatePresence>

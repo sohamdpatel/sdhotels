@@ -2,7 +2,7 @@ import React from "react";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
 import HotelCardLikeButton from "../ui/HotelCardLikeButton";
-import { useHotelHoverStore } from "@/hooks/hoverEffect.hooks";
+import { useHotelHoverStore } from "@/hooks/zustandStore.hooks";
 
 function HotelCard({ hotel, guests = 1, adults = 1, childrens = 0 }: { hotel: HotelOffer, guests?: number, adults?: number, childrens?: number }) {
   const hasOffer = !!hotel?.offer;

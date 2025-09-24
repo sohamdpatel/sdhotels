@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,14 +16,30 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema, FormValues } from "@/schemas/book.schema";
-import Modal from "@/components/ui/Modal";
 import ConfirmBookingModal from "@/components/modals/ConfirmBookingModal";
+import { useParams } from "next/navigation";
+import { hotelService } from "@/data-services/hotelData";
+import { useQuery } from "@tanstack/react-query";
+import { useHotelBookingStore } from "@/hooks/zustandStore.hooks";
+import { differenceInDays, format } from "date-fns";
 
 // type FormValues = z.infer<typeof formSchema>;
 export default function BookingPage() {
+  //   const params = useParams();
+  // const offerIdParam = params?.offerId;
+
+  const hotelDetails = useHotelBookingStore((state) => state.hotelDetails);
+
+  // if (typeof offerIdParam !== 'string') {
+  //   // Show error UI or return early
+  //   return <p>Invalid offer ID</p>;
+  // }
+
+  // Now offerId is guaranteed string
+  // const offerId: string = offerIdParam;
+
   const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
   const [formData, setFormData] = useState<FormValues | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -40,12 +56,54 @@ export default function BookingPage() {
 
   const paymentMethod = watch("paymentMethod");
 
+  // get offer data using amadeus query
+  //   const { data, isLoading, error } = useQuery({
+  //   queryKey: ["hotelOffer", offerId],
+  //   enabled: Boolean(offerId),   // ⬅️ only run when offerId is truthy
+  //   queryFn: async () => {
+  //     const result = await hotelService.getOfferData(offerId);
+  //     if (!result) throw new Error("No data"); // optional
+  //     return result;
+  //   },
+  //   staleTime: 60 * 60 * 1000,
+  // });
+
   const onSubmit = (data: FormValues) => {
     setFormData(data);
     setIsPaymentConfirmed(true);
   };
 
-  return (
+  //   if (isLoading) return <div>...Loading</div>
+  //   if (error) return <p>Failed to load hotel offer</p>;
+  // if (!data) return <div>No offer found</div>;  // optional guard
+
+  //   if(data) console.log("data from booking", data);
+  // if (!hotelDetails) {
+  //   return <p>Please select a hotel first.</p>;
+  // }
+
+  console.log("hotelDetail from booking", hotelDetails);
+  const { nights, withOutTotalPrice, onedayPrice, tax } = useMemo(() => {
+  if (!hotelDetails) return { nights: 1, withOutTotalPrice: 0, onedayPrice: 0, tax: 0 };
+  const nights = differenceInDays(
+    hotelDetails?.offer?.checkOutDate!,
+    hotelDetails?.offer?.checkInDate!
+  );
+  const total = parseFloat(hotelDetails?.offer?.price?.total!);
+  const taxPerc = parseFloat(hotelDetails?.offer?.price?.taxes[0]?.percentage!);
+  const withoutTotal = total - (total * taxPerc) / 100;
+  return {
+    nights,
+    withOutTotalPrice: withoutTotal.toFixed(2),
+    onedayPrice: (withoutTotal / nights).toFixed(2),
+    tax: (total - withoutTotal).toFixed(2)
+  };
+}, [hotelDetails]);
+
+
+  return !hotelDetails ? (
+    <div>Loading...</div>
+  ) : (
     <>
       {/* header */}
       <header className="max-w-[1840px] mx-auto flex md:block md:w-full top-0 bg-white shadow-sm py-3 md:py-0 px-5 md:px-0">
@@ -146,26 +204,6 @@ export default function BookingPage() {
                             >
                               Credit or debit card
                             </Label>
-                            <div className="flex space-x-1">
-                              <Image
-                                src="/visa.png"
-                                alt="visa"
-                                width={30}
-                                height={20}
-                              />
-                              <Image
-                                src="/mastercard.png"
-                                alt="master"
-                                width={30}
-                                height={20}
-                              />
-                              <Image
-                                src="/amex.png"
-                                alt="amex"
-                                width={30}
-                                height={20}
-                              />
-                            </div>
                           </div>
                           {paymentMethod === "card" && (
                             <div className="space-y-3 mt-3">
@@ -384,59 +422,74 @@ export default function BookingPage() {
                 <Card className="p-6 rounded-2xl shadow-sm sticky top-10">
                   <div className="flex gap-4">
                     <Image
-                      src="/hotel-room.jpg"
+                      src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NjE5Mzc0MDg3NzM1MTA5MTM0/original/ddb89954-9b3f-467d-9fdf-036affd6b537.jpeg?im_w=1200"
                       alt="Hotel room"
-                      width={120}
+                      width={80}
                       height={90}
                       className="rounded-lg object-cover"
                     />
                     <div>
-                      <h3 className="font-semibold">
-                        Luxury 2BHK – Leela Niwas – Ground Floor
-                      </h3>
+                      <h3 className="font-semibold">{hotelDetails?.name}</h3>
                       <p className="text-sm text-gray-600">
-                        ⭐ 4.83 (6) · Guest favourite
+                        {hotelDetails?.address?.cityName +
+                          ", " +
+                          hotelDetails?.address?.countryCode}
                       </p>
                     </div>
                   </div>
 
                   <div className="mt-4 text-sm space-y-2">
-                    <p className="text-green-600 font-medium">
-                      Free cancellation
-                    </p>
-                    <p className="text-gray-600">
-                      Cancel before <b>3 Feb</b> for a full refund.{" "}
-                      <span className="underline cursor-pointer">
-                        Full policy
-                      </span>
-                    </p>
+                    {hotelDetails?.offer?.policies?.cancellations?.map(
+                      (policy: any, i: number) => (
+                        <p key={i}>
+                          Free cancellation before{" "}
+                          <span className="font-medium">{policy.deadline}</span>{" "}
+                          <br />• Charge for {policy.numberOfNights} night(s)
+                          after deadline
+                        </p>
+                      )
+                    )}
 
                     <div className="flex justify-between mt-4">
                       <span>Dates</span>
-                      <span>4–6 Feb 2026</span>
+                      <span>
+                        {format(
+                          new Date(hotelDetails?.offer?.checkInDate!),
+                          "dd"
+                        )}{" "}
+                        -{" "}
+                        {format(
+                          new Date(hotelDetails?.offer?.checkOutDate!),
+                          "dd LLL"
+                        )}
+                      </span>
                     </div>
 
                     <div className="flex justify-between">
                       <span>Guests</span>
-                      <span>6 adults</span>
+                      <span>
+                        {(hotelDetails?.offer?.guests?.adults || 0) +
+                          (hotelDetails?.offer?.guests?.children || 0) +
+                          " guests"}
+                      </span>
                     </div>
 
                     <hr className="my-3" />
 
                     <div className="flex justify-between">
-                      <span>2 nights × ₹7,189.42</span>
-                      <span>₹14,378.83</span>
+                      <span>{nights + " nights ×" + { onedayPrice }}</span>
+                      <span>{withOutTotalPrice}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Taxes</span>
-                      <span>₹1,512</span>
+                      <span>{tax}</span>
                     </div>
 
                     <hr className="my-3" />
 
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total INR</span>
-                      <span>₹15,890.83</span>
+                      <span>₹{hotelDetails?.offer?.price?.total}</span>
                     </div>
 
                     <button className="text-sm underline text-gray-600 mt-1">
@@ -450,7 +503,10 @@ export default function BookingPage() {
         </div>
       </main>
       {/* footer */}
-      <footer className="h-24 w-full bg-gray-200"></footer>
+      <footer className="h-24 w-full bg-gray-200 text-center">
+        {" "}
+        Privacy and Policeies
+      </footer>
       {isOpen && (
         <ConfirmBookingModal
           onClose={() => setIsOpen(false)}

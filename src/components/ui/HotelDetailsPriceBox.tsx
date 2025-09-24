@@ -24,6 +24,9 @@ import { Controller, useForm } from "react-hook-form";
 import { hotelService } from "@/data-services/hotelData";
 import { debounce } from "@/lib/debounce";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { off } from "process";
+import { useHotelBookingStore } from "@/hooks/zustandStore.hooks";
 
 function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
   useEffect(() => {
@@ -71,6 +74,8 @@ const checkOutParam = searchParams.get("checkOut");
     },
   };
 });
+
+const setHotelDetails = useHotelBookingStore((state) => state.setHotelDetails);
 
  // current offer from API
   const [loading, setLoading] = useState(false);
@@ -123,6 +128,7 @@ console.log("i am debouceoffer initially")
       parseFloat(newOffer.price?.total) * Math.ceil((guestss.adults + guestss.childrens) / 3);
       newOffer.price.baseTotal =  parseFloat(newOffer?.price?.total);
       newOffer.price.total = price
+      newOffer.guests = guestss
       console.log("Updated new offer response:", newOffer); 
 
       setOffer(newOffer);
@@ -155,6 +161,7 @@ const debouncedRecalculatePrice = useMemo(
           if (!prev) return prev;
           return {
             ...prev,
+            guests: guestss,
             price: {
               ...prev.price,
               total: String(parseFloat(newTotal.toFixed(2))),
@@ -207,8 +214,11 @@ const debouncedUpdateUrl = useMemo(
       ? differenceInDays(dateRange.to, dateRange.from)
       : 0;
 
+
+
+
   return (
-    <div className="p-4 w-[300px] lg:w-[400px] border rounded-2xl shadow-md bg-white">
+    <div className="md:p-4 my-8 md:my-0 md:w-[300px] lg:w-[400px] max-w-[540px] mx-auto md:border rounded-2xl md:shadow-md bg-white">
       {/* Top Badge */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-pink-500 text-lg">💎</span>
@@ -350,7 +360,11 @@ const debouncedUpdateUrl = useMemo(
       </form>
 
       {/* Reserve Button */}
-      <button className="w-full mt-4 py-3 rounded-lg bg-gradient-to-r from-red-600 to-red-500 text-white font-semibold hover:opacity-90 transition">
+      <button onClick={() => {
+        setHotelDetails({...hotelDetails, offer})
+        router.push(`/book/hotels/${offer?.id}`)
+      }} 
+        className="w-full mt-4 py-3 rounded-lg bg-gradient-to-r from-red-600 to-red-500 text-white font-semibold hover:opacity-90 transition">
         Reserve
       </button>
 

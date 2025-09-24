@@ -27,7 +27,7 @@ export default function WishlistFolderPage() {
       {/* Left Section: Hotel List */}
       <div className="flex-1 flex flex-col">
         {/* Sticky Header */}
-        <div className="sticky top-[3.9rem] md:top-[5.9rem] z-20 lg:mr-5 bg-white border-b pt py-1 min-[425px]:py-3 flex items-center justify-between">
+        <div className="sticky top-0 md:top-[5.9rem] z-20 lg:mr-5 bg-white border-b pt py-1 min-[425px]:py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => window.history.back()}

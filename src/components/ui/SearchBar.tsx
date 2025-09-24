@@ -46,7 +46,7 @@ export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-   const cityParam = searchParams.get("city") || "";
+  const cityParam = searchParams.get("city") || "";
   const checkInParam = searchParams.get("checkIn");
   const checkOutParam = searchParams.get("checkOut");
   const guestsParam = Number(searchParams.get("guests")) || 0;
@@ -131,6 +131,41 @@ const compactGuests = totalGuests > 0 ? `${totalGuests} guests` : "Add guests";
 
     router.push(`/hotels/s?${params.toString()}`);
   };
+
+  useEffect(() => {
+  // Pull the latest values from searchParams
+  const cityParam = searchParams.get("city") || "";
+  const checkInParam = searchParams.get("checkIn");
+  const checkOutParam = searchParams.get("checkOut");
+  const adultsParam = Number(searchParams.get("adults")) || 0;
+  const childrenParam = Number(searchParams.get("children")) || 0;
+
+  // Update local state for the calendar
+  if (checkInParam || checkOutParam) {
+    setDateRange({
+      from: checkInParam ? new Date(checkInParam) : undefined,
+      to: checkOutParam ? new Date(checkOutParam) : undefined,
+    });
+  } else {
+    setDateRange(undefined);
+  }
+
+  // Reset the form values
+  form.reset({
+    cityCode: cityParam,
+    dateRange: {
+      from: checkInParam || undefined,
+      to: checkOutParam || undefined,
+    },
+    guests: {
+      adults: adultsParam,
+      children: childrenParam,
+      infants: 0,
+      pets: 0,
+    },
+  });
+}, [searchParams, pathname]); // 👈 runs whenever URL params change
+
 
   return (
     <div className="w-full max-w-3xl mx-auto ">

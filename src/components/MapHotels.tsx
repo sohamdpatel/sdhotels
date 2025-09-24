@@ -1,6 +1,6 @@
 "use client";
 
-import { useHotelHoverStore } from "@/hooks/hoverEffect.hooks";
+import { useHotelHoverStore } from "@/hooks/zustandStore.hooks";
 import { GoogleMap, OverlayView, useLoadScript } from "@react-google-maps/api";
 import { Hotel as HotelIcon } from "lucide-react";
 import React, { useEffect, useState, useCallback } from "react";

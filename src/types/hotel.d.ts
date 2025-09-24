@@ -26,6 +26,7 @@ interface HotelOffersOffer {
     checkOutDate: string; // yyyy-MM-dd
     guests: {
       adults: number;
+      children?: number;
     };
     id: string;
     policies: {

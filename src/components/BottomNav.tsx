@@ -16,12 +16,12 @@ export default function BottomNav() {
   const pathname = usePathname()
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t shadow-sm md:hidden">
-      <div className="flex justify-around items-center py-2">
-        <Link href="/" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/" ? " text-red-400 " : " "}`}>
+      <div className="flex justify-around items-center py-2"> 
+        <Link href="/" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/" || pathname.startsWith("/hotels/s") ? " text-red-400 " : " "}`}>
           <Search className="h-5 w-5" />
           <span className="text-xs">Explore</span>
         </Link>
-        <Link href="/user/wishlists  " className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/user/wishlists" ? " text-red-400 " : " "}`}>
+        <Link href="/user/wishlists  " className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname.startsWith("/user/wishlists") ? " text-red-400 " : " "}`}>
           <Heart className="h-5 w-5" />
           <span className="text-xs">Wishlist</span>
         </Link>
@@ -33,7 +33,7 @@ export default function BottomNav() {
           <MessageCircle className="h-5 w-5" />
           <span className="text-xs">Messages</span>
         </Link> */}
-        <Link href="/user/profile" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname === "/profile" ? " text-red-400 " : " "}`}>
+        <Link href="/user/profile" className={`flex flex-col items-center text-gray-600 hover:text-red-500 ${pathname.startsWith("/user/profile") ? " text-red-400 " : " "}`}>
           <User className="h-5 w-5" />
           <span className="text-xs">Profile</span>
         </Link>
