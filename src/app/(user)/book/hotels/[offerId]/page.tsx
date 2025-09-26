@@ -19,7 +19,7 @@ import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema, FormValues } from "@/schemas/book.schema";
 import ConfirmBookingModal from "@/components/modals/ConfirmBookingModal";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { hotelService } from "@/data-services/hotelData";
 import { useQuery } from "@tanstack/react-query";
 import { useHotelBookingStore } from "@/hooks/zustandStore.hooks";
@@ -39,11 +39,12 @@ export default function BookingPage() {
 
   // Now offerId is guaranteed string
   // const offerId: string = offerIdParam;
-
+  const router = useRouter()
   const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
   const [formData, setFormData] = useState<FormValues | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [buttonLoading, setButtonLoading] = useState(false);
+  const [buttonText, setButtonText] = useState("Confirm and pay")
   const {
     register,
     handleSubmit,
@@ -83,23 +84,50 @@ export default function BookingPage() {
   // }
 
   console.log("hotelDetail from booking", hotelDetails);
-  const { nights, withOutTotalPrice, onedayPrice, tax } = useMemo(() => {
-  if (!hotelDetails) return { nights: 1, withOutTotalPrice: 0, onedayPrice: 0, tax: 0 };
-  const nights = differenceInDays(
-    hotelDetails?.offer?.checkOutDate!,
-    hotelDetails?.offer?.checkInDate!
-  );
-  const total = parseFloat(hotelDetails?.offer?.price?.total!);
-  const taxPerc = parseFloat(hotelDetails?.offer?.price?.taxes[0]?.percentage!);
-  const withoutTotal = total - (total * taxPerc) / 100;
-  return {
-    nights,
-    withOutTotalPrice: withoutTotal.toFixed(2),
-    onedayPrice: (withoutTotal / nights).toFixed(2),
-    tax: (total - withoutTotal).toFixed(2)
-  };
-}, [hotelDetails]);
 
+  const { nights, withOutTotalPrice, onedayPrice, tax } = useMemo(() => {
+    if (!hotelDetails)
+      return { nights: 1, withOutTotalPrice: 0, onedayPrice: 0, tax: 0 };
+    const nights = differenceInDays(
+      hotelDetails?.offer?.checkOutDate!,
+      hotelDetails?.offer?.checkInDate!
+    );
+    const total = parseFloat(hotelDetails?.offer?.price?.total!);
+    const taxPerc = parseFloat(
+      hotelDetails?.offer?.price?.taxes[0]?.percentage!
+    );
+    const withoutTotal = total - (total * taxPerc) / 100;
+    console.log("oneDayPrice", (withoutTotal / nights).toFixed(2));
+    return {
+      nights,
+      withOutTotalPrice: withoutTotal.toFixed(2),
+      onedayPrice: (withoutTotal / nights).toFixed(2),
+      tax: (total - withoutTotal).toFixed(2),
+    };
+  }, [hotelDetails]);
+
+  const confirmBookingData = {
+    hotelName: hotelDetails?.name,
+    hotelLocation:
+      hotelDetails?.address?.cityName +
+      ", " +
+      hotelDetails?.address?.countryCode,
+    checkInDate: hotelDetails?.offer?.checkInDate,
+    checkOutDate: hotelDetails?.offer?.checkOutDate,
+    guests:
+      (hotelDetails?.offer?.guests?.adults || 0) +
+      (hotelDetails?.offer?.guests?.childrens || 0),
+  };
+
+  const handleBookingSubmit = () => {
+    setButtonLoading(true);
+
+    setTimeout(() => {
+      setIsOpen(true);
+      setButtonLoading(false);
+      setButtonText("Booking Confirmed") // ✅ stop loader after task
+    }, 3000);
+  };
 
   return !hotelDetails ? (
     <div>Loading...</div>
@@ -122,9 +150,9 @@ export default function BookingPage() {
       <main className="w-full">
         <div className="max-w-[1024px] mx-auto p-4 min-[848px]:p-10 flex md:justify-center lg:justify-normal">
           <div>
-            <div className="bg-gray-200 p-2 rounded-full w-fit sticky top-4 sm:top-10 z-20">
+            <button onClick={() => router.back()} className="bg-gray-200 p-2 rounded-full w-fit sticky top-4 sm:top-10 z-20">
               <ArrowLeft />
-            </div>
+            </button>
           </div>
 
           <div className="ml-4 lg:ml-10 w-full">
@@ -395,21 +423,14 @@ export default function BookingPage() {
                         .
                       </p>
                       <Button
-                        onClick={() => {
-                          setButtonLoading(true);
-
-                          setTimeout(() => {
-                            setIsOpen(true);
-                            setButtonLoading(false); // ✅ stop loader after task
-                          }, 3000);
-                        }}
-                        disabled={buttonLoading} // optional: disable button during loading
+                        onClick={handleBookingSubmit}
+                        disabled={buttonLoading || buttonText === "Booking Confirmed"} // optional: disable button during loading
                         className="mt-6 w-full bg-pink-600 hover:bg-pink-700"
                       >
                         {buttonLoading ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
                         ) : (
-                          "Confirm and pay"
+                          buttonText
                         )}
                       </Button>
                     </>
@@ -469,7 +490,7 @@ export default function BookingPage() {
                       <span>Guests</span>
                       <span>
                         {(hotelDetails?.offer?.guests?.adults || 0) +
-                          (hotelDetails?.offer?.guests?.children || 0) +
+                          (hotelDetails?.offer?.guests?.childrens || 0) +
                           " guests"}
                       </span>
                     </div>
@@ -477,7 +498,7 @@ export default function BookingPage() {
                     <hr className="my-3" />
 
                     <div className="flex justify-between">
-                      <span>{nights + " nights ×" + { onedayPrice }}</span>
+                      <span>{nights + " nights × " + onedayPrice}</span>
                       <span>{withOutTotalPrice}</span>
                     </div>
                     <div className="flex justify-between">
@@ -511,6 +532,7 @@ export default function BookingPage() {
         <ConfirmBookingModal
           onClose={() => setIsOpen(false)}
           hotelDetails={"Hello"}
+          confirmBookingData={confirmBookingData}
         />
       )}
     </>

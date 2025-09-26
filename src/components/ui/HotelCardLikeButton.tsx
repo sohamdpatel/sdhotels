@@ -8,7 +8,7 @@ import Modal from "./Modal";
 import { useWishlist } from "@/hooks/wishlist.hooks";
 import { cn } from "@/lib/utils";
 
-export default function HotelCardLikeButton({ hotel }: { hotel: HotelOffer }) {
+export default function HotelCardLikeButton({ hotel, className }: { hotel: HotelOffer, className?: string }) {
   const { user } = useAppSelector(selectAuth);
   const router = useRouter();
   const { addHotel, removeHotel, findFolderByHotelId, folders, createFolder } = useWishlist();
@@ -58,16 +58,16 @@ export default function HotelCardLikeButton({ hotel }: { hotel: HotelOffer }) {
 
   // render neutral icon until mounted to avoid mismatch
   const heartClasses = mounted && liked
-    ? "fill-red-500 text-red-500"
+    ? "fill-red-500 text-red-500 stroke-black stroke-1 "
     : "text-gray-700";
 
   return (
     <>
       <button
         onClick={handleOnClick}
-        className="absolute top-3 right-3 bg-white/80 rounded-full p-1 hover:scale-125 hover:bg-white transition"
-      >
-        <Heart className={cn("w-4 h-4", heartClasses)} />
+        className={cn("absolute top-3 right-3 bg-white/80 rounded-full p-1 hover:scale-125 hover:bg-white transition ", className)}
+      > 
+        <Heart className={cn("w-4 h-4  ", heartClasses)} stroke-width="2" />
       </button>
 
       {isOpen && (
@@ -103,6 +103,6 @@ export default function HotelCardLikeButton({ hotel }: { hotel: HotelOffer }) {
           </div>
         </Modal>
       )}
-    </>
+    </>  
   );
 }

@@ -58,7 +58,7 @@ export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
   const form = useForm<FormData>({
     resolver: zodResolver(searchSchema),
     defaultValues: { 
-      cityCode: isHotelDetails ? undefined : cityParam,
+      cityCode: isHotelDetails ? "" : cityParam,
     dateRange: {
       from: isHotelDetails ? undefined : (checkInParam || undefined),
       to: isHotelDetails ? undefined : (checkOutParam || undefined),

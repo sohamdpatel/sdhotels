@@ -26,7 +26,7 @@ interface HotelOffersOffer {
     checkOutDate: string; // yyyy-MM-dd
     guests: {
       adults: number;
-      children?: number;
+      childrens?: number;
     };
     id: string;
     policies: {
@@ -92,4 +92,12 @@ interface HotelOffersOffer {
         category: string;
       };
   };
+  }
+
+interface ConfirmBooking {
+    hotelName: string | undefined,
+    hotelLocation: string | undefined;
+    checkInDate: string | undefined,
+    checkOutDate: string | undefined,
+    guests: number | undefined,
   }

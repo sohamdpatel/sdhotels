@@ -68,6 +68,7 @@ export default function SearchedHotelsFeed({
   <div className="hidden lg:block w-[40%] sticky top-28 h-fit">
     <MapHotels
       hotels={data!}
+      guests={guests}
     />
   </div>
 </div>

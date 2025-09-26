@@ -6,9 +6,11 @@ import ReactDOM from "react-dom";
 export default function Modal({
   children,
   onClose,
+  disableClose = false,
 }: {
   children: React.ReactNode;
   onClose: () => void;
+  disableClose?: boolean;
 }) {
   // Make sure we’re on the client
   if (typeof document === "undefined") return null;
@@ -30,7 +32,8 @@ export default function Modal({
       <div className="relative min-w-lg w-fit m-4">
         <button
           onClick={onClose}
-          className="absolute -top-3 -right-3 z-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+          disabled = {disableClose}
+          className={`absolute -top-3 -right-3 z-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 ${ disableClose ? "hidden" : "block"}`}
           aria-label="Close modal"
         >
           <svg

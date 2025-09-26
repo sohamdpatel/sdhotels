@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import Modal from "../ui/Modal";
 import Link from "next/link";
 
-export default function ConfirmBookingModal({hotelDetails,onClose}: {hotelDetails: any,onClose: () => void}){
+export default function ConfirmBookingModal({hotelDetails, confirmBookingData,onClose}: {hotelDetails: any, confirmBookingData: ConfirmBooking,onClose: () => void}){
     return (
         <Modal onClose={onClose}>
             <div className=" flex flex-col justi not-first-of-type:fy-center items-center gap-6 w-full">
@@ -23,21 +23,21 @@ export default function ConfirmBookingModal({hotelDetails,onClose}: {hotelDetail
         />
         <div className="flex flex-col gap-2">
             <div className=" flex flex-col">
-                <h1 className="text-xl font-semibold text-nowrap">Luxury 2BHK – Leela Niwas – Ground Floor</h1>
-                <h4 className=" text-lg text-gray-500">Banglore, IN</h4>
+                <h1 className="text-xl font-semibold text-nowrap">{confirmBookingData?.hotelName}</h1>
+                <h4 className=" text-lg text-gray-500">{confirmBookingData?.hotelLocation}</h4>
             </div>
             <div className=" flex gap-10 ">
                 <div className=" flex flex-col  w-[150px]">
                     <h4 className=" text-[14px] text-gray-400 -mb-1">Check in</h4>
-                    <h4 className=" text-[18px] font-semibold">24 SEP 2015</h4>
+                    <h4 className=" text-[18px] font-semibold">{confirmBookingData?.checkInDate}</h4>
                 </div>
                 <div className=" flex flex-col w-[150px]">
                     <h4 className=" text-[14px] text-gray-400 -mb-1">Check out</h4>
-                    <h4 className=" text-[18px] font-semibold">24 SEP 2015</h4>
+                    <h4 className=" text-[18px] font-semibold">{confirmBookingData?.checkOutDate}</h4>
                 </div>
                 <div className=" flex flex-col ">
                     <h4 className=" text-[14px] text-gray-400 -mb-1">Guests</h4>
-                    <h4 className=" text-[18px] font-semibold">2</h4>
+                    <h4 className=" text-[18px] font-semibold">{confirmBookingData?.guests}</h4>
                 </div>
             </div>
             <div className=" flex gap-10">

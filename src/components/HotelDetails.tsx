@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ClipboardList, Heart, Info, MapPin, Share } from "lucide-react";
 import HotelDetailsPriceBox from "./ui/HotelDetailsPriceBox";
 import HotelDetailsMap from "./ui/HotelDetailsMap";
+import HotelCardLikeButton from "./ui/HotelCardLikeButton";
 
 export default function HotelDetails({
   hotelDetails,
@@ -21,10 +22,10 @@ export default function HotelDetails({
             <Share />
             Share
           </Button>
-          <Button className="bg-white hover:bg-[#dcdcdc] text-black text-lg px-5 shadow-none">
-            <Heart />
+          <div className="bg-white group hover:bg-[#dcdcdc] text-black text-lg px-3 white py-1 rounded-lg shadow-none flex items-center gap-1 font-semibold self-center">
+            <HotelCardLikeButton hotel={hotelDetails} className=" static bg-white group-hover:bg-[#dcdcdc] scale-120 hover:scale-120  hover:bg-transparent transition-none "/>
             Save
-          </Button>
+          </div>
         </div>
       </div>
 
