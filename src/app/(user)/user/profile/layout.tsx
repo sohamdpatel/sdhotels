@@ -3,7 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ProfileSidebar from "@/components/ProfileSidebar";
-
+export const dynamic = 'force-dynamic'
 export default function ProfileLayout({
   children,
 }: {

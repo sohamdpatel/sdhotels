@@ -13,7 +13,6 @@ export default function Modal({
   disableClose?: boolean;
 }) {
   // Make sure we’re on the client
-  if (typeof document === "undefined") return null;
   useEffect(() => {
     // lock background scroll
     document.body.style.overflow = 'hidden';
@@ -26,6 +25,7 @@ export default function Modal({
 
     };
   }, []);
+  if (typeof document === "undefined") return null;
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center z-50">

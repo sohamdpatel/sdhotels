@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
@@ -24,7 +25,6 @@ export default function SearchModal({
   const cityParam = searchParams.get("city") || "";
   const checkInParam = searchParams.get("checkIn");
   const checkOutParam = searchParams.get("checkOut");
-  const guestsParam = Number(searchParams.get("guests")) || 0;
   const adultsParam = Number(searchParams.get("adults")) || 0;
   const childrenParam = Number(searchParams.get("children")) || 0;
   const [step, setStep] = useState<"where" | "when" | "who">("where");

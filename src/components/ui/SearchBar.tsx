@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
@@ -43,13 +44,12 @@ export default function SearchBar({isScrolled}: {isScrolled: boolean}) {
   });
 
   const [guestPopover, setGuestPopover] = useState(false);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<getCitySuggestionsResponse[] | []>([]);
   const [loading, setLoading] = useState(false);
 
   const cityParam = searchParams.get("city") || "";
   const checkInParam = searchParams.get("checkIn");
   const checkOutParam = searchParams.get("checkOut");
-  const guestsParam = Number(searchParams.get("guests")) || 0;
   const adultsParam = Number(searchParams.get("adults")) || 0;
   const childrenParam = Number(searchParams.get("children")) || 0;
 
@@ -164,7 +164,7 @@ const compactGuests = totalGuests > 0 ? `${totalGuests} guests` : "Add guests";
       pets: 0,
     },
   });
-}, [searchParams, pathname]); // 👈 runs whenever URL params change
+}, [searchParams, pathname, form]); // 👈 runs whenever URL params change
 
 
   return (
@@ -334,7 +334,7 @@ const compactGuests = totalGuests > 0 ? `${totalGuests} guests` : "Add guests";
                       </PopoverTrigger>
                       <PopoverContent className="w-80 p-4 space-y-4">
                         {["adults", "children"].map(
-                          (type, idx) => (
+                          (type) => (
                             <div
                               key={type}
                               className="flex items-center justify-between"

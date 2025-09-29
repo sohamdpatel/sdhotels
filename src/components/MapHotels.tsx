@@ -3,6 +3,7 @@
 import { useHotelHoverStore } from "@/hooks/zustandStore.hooks";
 import { GoogleMap, OverlayView, useLoadScript } from "@react-google-maps/api";
 import { Hotel as HotelIcon } from "lucide-react";
+import Image from "next/image";
 import React, { useEffect, useState, useCallback } from "react";
 
 type Hotel = {
@@ -31,14 +32,13 @@ type HotelMarkerProps = {
 };
 
 const HotelMarker = React.memo(
-  ({
+  function HotelMarkerComponent({
     hotel,
     isHovered,
     isSelected,
     onHover,
     onClick,
-    guests,
-  }: HotelMarkerProps & { guests: number }) => {
+  }: HotelMarkerProps & { guests: number }){
     return (
       <OverlayView
         key={hotel.hotelId}
@@ -91,7 +91,7 @@ const HotelMarker = React.memo(
 // Marker List Component
 // ------------------------
 const HotelMarkersList = React.memo(
-  ({ hotels, guests }: { hotels: Hotel[]; guests: number | undefined }) => {
+  function HotelMarkersListComponent({ hotels, guests }: { hotels: Hotel[]; guests: number | undefined }) {
     const hoveredHotelId = useHotelHoverStore((state) => state.hoveredHotelId);
     const setHoveredHotelId = useHotelHoverStore(
       (state) => state.setHoveredHotelId
@@ -99,9 +99,6 @@ const HotelMarkersList = React.memo(
 
     const selectedHotelId = useHotelHoverStore(
       (state) => state.selectedHotelId
-    );
-    const setSelectedHotelId = useHotelHoverStore(
-      (state) => state.setSelectedHotelId
     );
 
     const handleHover = useCallback(
@@ -227,7 +224,7 @@ export default function MapHotels({
           mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
         >
           <div className="absolute -top-68 left-1/2 -translate-x-1/2 w-60 bg-white rounded-xl shadow-lg overflow-hidden z-50">
-            <img
+            <Image
               src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NjE5Mzc0MDg3NzM1MTA5MTM0/original/ddb89954-9b3f-467d-9fdf-036affd6b537.jpeg"
               alt={selectedHotel.name}
               className="w-full h-40 object-cover"

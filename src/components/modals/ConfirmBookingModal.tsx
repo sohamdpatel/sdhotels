@@ -1,8 +1,9 @@
 import { Check } from "lucide-react";
 import Modal from "../ui/Modal";
 import Link from "next/link";
+import Image from "next/image";
 
-export default function ConfirmBookingModal({hotelDetails, confirmBookingData,onClose}: {hotelDetails: any, confirmBookingData: ConfirmBooking,onClose: () => void}){
+export default function ConfirmBookingModal({ confirmBookingData,onClose}: { confirmBookingData: ConfirmBooking,onClose: () => void}){
     return (
         <Modal onClose={onClose}>
             <div className=" flex flex-col justi not-first-of-type:fy-center items-center gap-6 w-full">
@@ -12,11 +13,11 @@ export default function ConfirmBookingModal({hotelDetails, confirmBookingData,on
                         Great, your booking is confirmed
                     </h1>
                     <h1>
-                        Here's the info you'll need
+                        Here&apos;s the info you&apos;ll need
                     </h1>
                 </div>
                 <div className=" flex gap-6 my-2 border-y-2 py-5 mx-3">
-                    <img
+                    <Image
           src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NjE5Mzc0MDg3NzM1MTA5MTM0/original/ddb89954-9b3f-467d-9fdf-036affd6b537.jpeg?im_w=1200"
           alt="hotel"
           className="w-44 aspect-square object-cover rounded-3xl"

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useWishlist } from "@/hooks/wishlist.hooks";
 import Image from "next/image";

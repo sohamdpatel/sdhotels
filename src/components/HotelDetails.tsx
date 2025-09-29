@@ -1,9 +1,10 @@
 
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Heart, Info, MapPin, Share } from "lucide-react";
+import { ClipboardList, Info, MapPin, Share } from "lucide-react";
 import HotelDetailsPriceBox from "./ui/HotelDetailsPriceBox";
 import HotelDetailsMap from "./ui/HotelDetailsMap";
 import HotelCardLikeButton from "./ui/HotelCardLikeButton";
+import Image from "next/image";
 
 export default function HotelDetails({
   hotelDetails,
@@ -32,7 +33,7 @@ export default function HotelDetails({
       {/* Images (Dummy) */}
       <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[500px]">
         {/* First big image */}
-        <img
+        <Image
           src="https://picsum.photos/800/600?random=1"
           alt="Hotel main"
           className="w-full h-full object-cover rounded-lg col-span-2 row-span-2"
@@ -40,7 +41,7 @@ export default function HotelDetails({
 
         {/* Other 4 images */}
         {[2, 3, 4, 5].map((img) => (
-          <img
+          <Image
             key={img}
             src={`https://picsum.photos/600/400?random=${img}`}
             alt="Hotel"
@@ -103,7 +104,7 @@ export default function HotelDetails({
               Policies
             </h2>
             {hotelDetails?.offer?.policies?.cancellations?.map(
-              (policy: any, i: number) => (
+              (policy: CancellationPolicy, i: number) => (
                 <p key={i} className=" text-xl">
                   Free cancellation before{" "}
                   <span className="font-medium">{policy.deadline}</span> •

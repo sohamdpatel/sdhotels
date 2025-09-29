@@ -1,5 +1,6 @@
 // app/components/Header.tsx
 'use client'
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { Globe } from "lucide-react";
 import MobileSearch from "./MobileSearch";

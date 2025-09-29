@@ -1,8 +1,7 @@
 "use client";
-
+export const dynamic = "force-dynamic";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import dynamic from "next/dynamic";
 import { useWishlist } from "@/hooks/wishlist.hooks";
 import HotelCard from "@/components/cards/HotelCard";
 import { ArrowLeft, Ellipsis } from "lucide-react";
@@ -20,7 +19,7 @@ export default function WishlistFolderPage() {
   useEffect(() => setMounted(true), []);
 
   // Fetch hotels for this folder
-  const hotels: HotelOffer[] = folders[folderName] || [];
+  const hotels: HotelWithOffer[] = folders[folderName] || [];
 
   return (
     <div className="w-full flex h-full min-h-[calc(100vh-96px)]">
@@ -51,7 +50,7 @@ export default function WishlistFolderPage() {
           {!mounted ? (
             [1,2,3,4,5,6].map((key) => (<HotelCardSkeleton key={key}/>))
           ) : hotels?.length ? (
-            hotels.map((hotel: any) => (
+            hotels.map((hotel) => (
               <HotelCard key={hotel.hotelId} hotel={hotel} />
             ))
           ) : (

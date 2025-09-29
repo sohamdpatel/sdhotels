@@ -1,10 +1,10 @@
+
 import RecentTripProfileMain from "@/components/profilePageMainComponent/RecentTripProfileMain"
 
-
-function page() {
+function RecentPage() {
   return (
     <RecentTripProfileMain />
   )
 }
 
-export default page
+export default RecentPage

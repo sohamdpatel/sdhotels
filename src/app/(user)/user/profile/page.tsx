@@ -1,5 +1,4 @@
 "use client"
-import AboutProfileMain from "@/components/profilePageMainComponent/AboutProfileMain";
 import { Button } from "@/components/ui/button";
 import { LucideMessagesSquare } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -58,7 +57,7 @@ export default function ProfileRootPage() {
           {/* reviews */}
           <div className=" flex gap-5 ">
               <LucideMessagesSquare />
-              <h2 className=" text-[1.125rem] h-fit">Reviews I've written</h2>
+              <h2 className=" text-[1.125rem] h-fit">Reviews I&apos;ve written</h2>
           </div>
         </div>
       </div>

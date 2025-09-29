@@ -58,7 +58,7 @@ function AboutProfileMain() {
             {/* reviews */}
             <div className=" flex gap-5 ">
               <LucideMessagesSquare />
-              <h2 className=" text-[1.125rem] h-fit">Reviews I've written</h2>
+              <h2 className=" text-[1.125rem] h-fit">Reviews I&apos;ve written</h2>
             </div>
           </div>
         </div>
@@ -118,7 +118,7 @@ function AboutProfileMain() {
               {/* reviews */}
               <div className=" flex gap-5 ">
                 <LucideMessagesSquare />
-                <h2 className=" text-[1.125rem] h-fit">Reviews I've written</h2>
+                <h2 className=" text-[1.125rem] h-fit">Reviews I&apos;ve written</h2>
               </div>
             </div>
           </div>

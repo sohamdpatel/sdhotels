@@ -5,6 +5,7 @@ import HotelsSlider from "@/components/ui/HotelsSlider";
 import { hotelService } from "@/data-services/hotelData";
 import { Suspense } from "react";
 
+export const dynamic = 'force-dynamic'
 export default async function Home() {
   try {
     // Run all API calls in parallel 🚀
@@ -34,12 +35,13 @@ export default async function Home() {
         ))}
       </div>
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     // ⬇️ Render the error modal
-    return (
-      <ErrorModalClient
-        message={err?.message || "Failed to load hotels. Please try again."}
-      />
-    );
+    let message = 'Failed to load hotels. Please try again.';
+  if (err instanceof Error) {
+    message = err.message;
+  }
+
+  return <ErrorModalClient message={message} />;
   }
 }

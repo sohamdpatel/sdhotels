@@ -2,8 +2,6 @@
 
 import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -12,12 +10,10 @@ import HotelCardSkeleton from "./HotelCardsckeleton";
 
 type HotelsSliderSkeletonProps = {
   title?: string;
-  slides?: number; // how many skeleton cards to render
 };
 
 export default function HotelsSliderSkeleton({
   title = "Loading hotels...",
-  slides = 6,
 }: HotelsSliderSkeletonProps) {
   const prevRef = useRef<HTMLButtonElement | null>(null);
   const nextRef = useRef<HTMLButtonElement | null>(null);

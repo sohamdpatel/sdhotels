@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useQuery } from "@tanstack/react-query";
 import HotelCard from "@/components/cards/HotelCard";
@@ -23,7 +24,6 @@ export default function SearchedHotelsFeed({
   adults,
   childrens,
 }: Props) {
-  // const [hoveredHotel,setHoveredHotel] = useState<any>()
 
   console.log("searched hotel feed page")
 
@@ -50,19 +50,19 @@ export default function SearchedHotelsFeed({
     <div className="w-full flex gap-5 mb-15 md:mb-0">
   {/* Hotels Grid */}
   <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 flex-2">
-    {data?.length ? (
-      data?.map((hotel: any) => (
-        <HotelCard
-          key={hotel.hotelId}
-          hotel={hotel}
-          guests={guests}
-          adults={adults}
-          childrens={childrens}
-        />
-      ))
-    ) : (
-      <p>No hotels found</p>
-    )}
+      {data?.length ? (
+        data?.map((hotel: HotelWithOffer) => (
+          <HotelCard
+            key={hotel.hotelId}
+            hotel={hotel}
+            guests={guests}
+            adults={adults}
+            childrens={childrens}
+          />
+        ))
+      ) : (
+        <p>No hotels found</p>
+      )}
   </div>
   {/* Sticky Map */}
   <div className="hidden lg:block w-[40%] sticky top-28 h-fit">

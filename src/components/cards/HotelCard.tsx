@@ -1,17 +1,21 @@
+"use client"
+export const dynamic = "force-dynamic";
+
 import React from "react";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
 import HotelCardLikeButton from "../ui/HotelCardLikeButton";
 import { useHotelHoverStore } from "@/hooks/zustandStore.hooks";
+import Image from "next/image";
 
-function HotelCard({ hotel, guests = 1, adults = 1, childrens = 0 }: { hotel: HotelOffer, guests?: number, adults?: number, childrens?: number }) {
+function HotelCard({ hotel, guests = 1, adults = 1, childrens = 0 }: { hotel: HotelWithOffer, guests?: number, adults?: number, childrens?: number }) {
   const hasOffer = !!hotel?.offer;
 const setHoveredHotelId = useHotelHoverStore((state) => state.setHoveredHotelId);
   
   let price;
   if( guests > 3){
 
-    const hotelprice = parseFloat(parseFloat(hotel?.offer?.price?.total!).toFixed(2))
+    const hotelprice = parseFloat(parseFloat(hotel.offer!.price.total).toFixed(2))
     const room = Math.ceil(guests / 3)
     price = parseFloat((hotelprice  * room).toFixed(2))
     console.log("price from cards",hotel?.name, price , hotelprice, room);
@@ -31,7 +35,7 @@ const setHoveredHotelId = useHotelHoverStore((state) => state.setHoveredHotelId)
     >
       {/* Image with overlay */}
       <div className="relative">
-        <img
+        <Image
           src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6NjE5Mzc0MDg3NzM1MTA5MTM0/original/ddb89954-9b3f-467d-9fdf-036affd6b537.jpeg?im_w=1200"
           alt="hotel"
           className="w-full aspect-square object-cover rounded-3xl"

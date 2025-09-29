@@ -1,7 +1,7 @@
 "use client";
-
+export const dynamic = "force-dynamic";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -17,11 +17,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema, FormValues } from "@/schemas/book.schema";
+import { CardForm, formSchema, FormValues, NetForm, UpiForm } from "@/schemas/book.schema";
 import ConfirmBookingModal from "@/components/modals/ConfirmBookingModal";
-import { useParams, useRouter } from "next/navigation";
-import { hotelService } from "@/data-services/hotelData";
-import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useHotelBookingStore } from "@/hooks/zustandStore.hooks";
 import { differenceInDays, format } from "date-fns";
 
@@ -30,7 +28,7 @@ export default function BookingPage() {
   //   const params = useParams();
   // const offerIdParam = params?.offerId;
 
-  const hotelDetails = useHotelBookingStore((state) => state.hotelDetails);
+  const hotelDetails: HotelOffer | null = useHotelBookingStore((state) => state.hotelDetails);
 
   // if (typeof offerIdParam !== 'string') {
   //   // Show error UI or return early
@@ -57,18 +55,10 @@ export default function BookingPage() {
 
   const paymentMethod = watch("paymentMethod");
 
-  // get offer data using amadeus query
-  //   const { data, isLoading, error } = useQuery({
-  //   queryKey: ["hotelOffer", offerId],
-  //   enabled: Boolean(offerId),   // ⬅️ only run when offerId is truthy
-  //   queryFn: async () => {
-  //     const result = await hotelService.getOfferData(offerId);
-  //     if (!result) throw new Error("No data"); // optional
-  //     return result;
-  //   },
-  //   staleTime: 60 * 60 * 1000,
-  // });
-
+  
+  const UpiErrors = errors as FieldErrors<UpiForm>
+  const CardErrors = errors as FieldErrors<CardForm>
+  const NetErrors = errors as FieldErrors<NetForm>
   const onSubmit = (data: FormValues) => {
     setFormData(data);
     setIsPaymentConfirmed(true);
@@ -86,25 +76,27 @@ export default function BookingPage() {
   console.log("hotelDetail from booking", hotelDetails);
 
   const { nights, withOutTotalPrice, onedayPrice, tax } = useMemo(() => {
-    if (!hotelDetails)
-      return { nights: 1, withOutTotalPrice: 0, onedayPrice: 0, tax: 0 };
-    const nights = differenceInDays(
-      hotelDetails?.offer?.checkOutDate!,
-      hotelDetails?.offer?.checkInDate!
-    );
-    const total = parseFloat(hotelDetails?.offer?.price?.total!);
-    const taxPerc = parseFloat(
-      hotelDetails?.offer?.price?.taxes[0]?.percentage!
-    );
-    const withoutTotal = total - (total * taxPerc) / 100;
-    console.log("oneDayPrice", (withoutTotal / nights).toFixed(2));
-    return {
-      nights,
-      withOutTotalPrice: withoutTotal.toFixed(2),
-      onedayPrice: (withoutTotal / nights).toFixed(2),
-      tax: (total - withoutTotal).toFixed(2),
-    };
-  }, [hotelDetails]);
+  const checkOut = hotelDetails?.offer?.checkOutDate;
+  const checkIn = hotelDetails?.offer?.checkInDate;
+  const totalStr = hotelDetails?.offer?.price?.total ?? "0";
+  const taxStr = hotelDetails?.offer?.price?.taxes?.[0]?.percentage ?? "0";
+
+  if (!hotelDetails || !checkOut || !checkIn) {
+    return { nights: 1, withOutTotalPrice: 0, onedayPrice: 0, tax: 0 };
+  }
+
+  const nights = differenceInDays(checkOut, checkIn);
+  const total = parseFloat(totalStr);
+  const taxPerc = parseFloat(taxStr);
+  const withoutTotal = total - (total * taxPerc) / 100;
+
+  return {
+    nights,
+    withOutTotalPrice: withoutTotal.toFixed(2),
+    onedayPrice: (withoutTotal / nights).toFixed(2),
+    tax: (total - withoutTotal).toFixed(2),
+  };
+}, [hotelDetails]);
 
   const confirmBookingData = {
     hotelName: hotelDetails?.name,
@@ -180,10 +172,10 @@ export default function BookingPage() {
                         onValueChange={(val) => {
                           const event = {
                             target: { name: "paymentMethod", value: val },
-                          } as any;
+                          };
                           register("paymentMethod").onChange(event);
                         }}
-                      >
+                      > 
                         {/* UPI */}
                         <div className="flex flex-col gap-3 py-2">
                           <div className="flex items-center space-x-3 p-3 rounded-lg">
@@ -203,7 +195,7 @@ export default function BookingPage() {
                                 placeholder="Virtual payment address"
                                 {...register("upiId")}
                                 className={`w-full border rounded-md px-3 py-2 text-sm ${
-                                  (errors as any)?.upiId
+                                  UpiErrors.upiId
                                     ? "border-red-500 bg-red-50"
                                     : ""
                                 }`}
@@ -211,10 +203,10 @@ export default function BookingPage() {
                               <p className="text-xs text-gray-500 mt-1">
                                 Example: username@bank
                               </p>
-                              {(errors as any)?.upiId && (
+                              {UpiErrors.upiId && (
                                 <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
                                   <AlertCircle className="w-4 h-4" />{" "}
-                                  {(errors as any).upiId.message}
+                                  {UpiErrors.upiId.message}
                                 </p>
                               )}
                             </div>
@@ -241,15 +233,15 @@ export default function BookingPage() {
                                   placeholder="Card number"
                                   {...register("cardNumber")}
                                   className={`w-full border rounded-md px-3 py-2 text-sm ${
-                                    (errors as any)?.cardNumber
+                                    CardErrors?.cardNumber
                                       ? "border-red-500 bg-red-50"
                                       : ""
                                   }`}
                                 />
-                                {(errors as any)?.cardNumber && (
+                                {CardErrors?.cardNumber && (
                                   <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
                                     <AlertCircle className="w-4 h-4" />{" "}
-                                    {(errors as any).cardNumber.message}
+                                    {CardErrors.cardNumber.message}
                                   </p>
                                 )}
                               </div>
@@ -276,15 +268,15 @@ export default function BookingPage() {
                                       register("expiry").onChange(e); // notify RHF
                                     }}
                                     className={`flex-1 border rounded-md px-3 py-2 text-sm ${
-                                      (errors as any)?.expiry
+                                      CardErrors?.expiry
                                         ? "border-red-500 bg-red-50"
                                         : ""
                                     }`}
                                   />
-                                  {(errors as any)?.expiry && (
+                                  {CardErrors?.expiry && (
                                     <p className="text-sm text-red-600 flex items-center gap-1">
                                       <AlertCircle className="w-4 h-4" />{" "}
-                                      {(errors as any).expiry.message}
+                                      {CardErrors.expiry.message}
                                     </p>
                                   )}
                                 </div>
@@ -294,15 +286,15 @@ export default function BookingPage() {
                                     placeholder="CVV"
                                     {...register("cvv")}
                                     className={`flex-1 border rounded-md px-3 py-2 text-sm ${
-                                      (errors as any)?.cvv
+                                    CardErrors?.cvv
                                         ? "border-red-500 bg-red-50"
                                         : ""
                                     }`}
                                   />
-                                  {(errors as any)?.cvv && (
+                                  {CardErrors?.cvv && (
                                     <p className="text-sm text-red-600 flex items-center gap-1">
                                       <AlertCircle className="w-4 h-4" />{" "}
-                                      {(errors as any).cvv.message}
+                                      {CardErrors.cvv.message}
                                     </p>
                                   )}
                                 </div>
@@ -314,15 +306,15 @@ export default function BookingPage() {
                                   placeholder="Cardholder name"
                                   {...register("cardholder")}
                                   className={`w-full border rounded-md px-3 py-2 text-sm ${
-                                    (errors as any)?.cardholder
+                                    CardErrors?.cardholder
                                       ? "border-red-500 bg-red-50"
                                       : ""
                                   }`}
                                 />
-                                {(errors as any)?.cardholder && (
+                                {CardErrors?.cardholder && (
                                   <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
                                     <AlertCircle className="w-4 h-4" />{" "}
-                                    {(errors as any).cardholder.message}
+                                    {CardErrors.cardholder.message}
                                   </p>
                                 )}
                               </div>
@@ -352,15 +344,15 @@ export default function BookingPage() {
                                 placeholder="Bank name"
                                 {...register("bankName")}
                                 className={`w-full border rounded-md px-3 py-2 text-sm ${
-                                  (errors as any)?.bankName
+                                  NetErrors?.bankName
                                     ? "border-red-500 bg-red-50"
                                     : ""
                                 }`}
                               />
-                              {(errors as any)?.bankName && (
+                              {NetErrors?.bankName && (
                                 <p className="text-sm text-red-600 flex items-center gap-1 mt-1">
                                   <AlertCircle className="w-4 h-4" />{" "}
-                                  {(errors as any).bankName.message}
+                                  {NetErrors.bankName.message}
                                 </p>
                               )}
                             </div>
@@ -368,10 +360,10 @@ export default function BookingPage() {
                         </div>
                       </RadioGroup>
 
-                      {(errors as any)?.paymentMethod && (
+                      {errors?.paymentMethod && (
                         <p className="text-sm text-red-600 flex items-center gap-1 mt-2">
                           <AlertCircle className="w-4 h-4" />{" "}
-                          {(errors as any).paymentMethod.message as string}
+                          {errors.paymentMethod.message as string}
                         </p>
                       )}
 
@@ -461,7 +453,7 @@ export default function BookingPage() {
 
                   <div className="mt-4 text-sm space-y-2">
                     {hotelDetails?.offer?.policies?.cancellations?.map(
-                      (policy: any, i: number) => (
+                      (policy: CancellationPolicy, i: number) => (
                         <p key={i}>
                           Free cancellation before{" "}
                           <span className="font-medium">{policy.deadline}</span>{" "}
@@ -475,12 +467,12 @@ export default function BookingPage() {
                       <span>Dates</span>
                       <span>
                         {format(
-                          new Date(hotelDetails?.offer?.checkInDate!),
+                          new Date(hotelDetails.offer!.checkInDate),
                           "dd"
                         )}{" "}
                         -{" "}
                         {format(
-                          new Date(hotelDetails?.offer?.checkOutDate!),
+                          new Date(hotelDetails.offer!.checkOutDate),
                           "dd LLL"
                         )}
                       </span>
@@ -531,7 +523,6 @@ export default function BookingPage() {
       {isOpen && (
         <ConfirmBookingModal
           onClose={() => setIsOpen(false)}
-          hotelDetails={"Hello"}
           confirmBookingData={confirmBookingData}
         />
       )}

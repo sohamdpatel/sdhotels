@@ -1,6 +1,5 @@
 // services/HotelService.ts
-import axios, { AxiosInstance } from "axios";
-import Amadeus from "amadeus";
+import Amadeus, { AmadeusHotel, AmadeusHotelOffer } from "amadeus";
 
 class HotelService {
   private client: Amadeus;
@@ -33,9 +32,9 @@ class HotelService {
       // console.log("hotelby city", hotels);
 
       // Step 3: Collect hotelIds
-      const hotelIds = hotels.map((h: any) => h.hotelId);
+      const hotelIds = hotels.map((h: AmadeusHotel) => h.hotelId);
       // return hotelIds
-      // @ts-ignore – Amadeus typings outdated
+      // @ts-expect-error – Amadeus typings outdated
       // Step 4: Fetch price offers only for those hotels
       const offersRes = await this.client.shopping.hotelOffersSearch.get({
         hotelIds: hotelIds.join(","),
@@ -49,9 +48,9 @@ class HotelService {
         return hotels;
       }
       // Step 5: Merge reference + price
-      return hotels.map((hotel: any) => {
+      return hotels.map((hotel: AmadeusHotel) => {
         const offer = offers.find(
-          (o: any) => o.hotel.hotelId === hotel.hotelId
+          (o: AmadeusHotelOffer) => o.hotel.hotelId === hotel.hotelId
         );
 
         return {
@@ -59,10 +58,32 @@ class HotelService {
           offer: offer?.offers?.[0], // first available offer
         };
       });
-    } catch (err: any) {
-      console.error("Amadeus API Error:", err.response?.result || err);
-      throw err;
-    }
+    } catch (err: unknown) {
+  // If it's a standard Error instance
+  if (err instanceof Error) {
+    console.error("Amadeus Offer fetch error:", err.message);
+    throw err; // rethrow
+  }
+
+  // If it's an object with a `response` property (common in Axios-like errors)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { result?: unknown } }) === "object"
+  ) {
+    const responseResult = (err as { response?: { result?: unknown } }).response?.result;
+    console.error("Amadeus Offer fetch error:", responseResult || err);
+    throw new Error(
+      responseResult ? JSON.stringify(responseResult) : "Unknown error occurred"
+    );
+  }
+
+  // Fallback for anything else
+  console.error("Amadeus Offer fetch error:", err);
+  throw new Error("Unknown error occurred");
+}
+
   }
 
   async searchAvailableHotelsV2(
@@ -73,7 +94,6 @@ class HotelService {
   ) {
     try {
       // STEP 1: Get hotels in the city
-      // @ts-ignore
       console.log(
         "search",
         cityCode,
@@ -88,7 +108,7 @@ class HotelService {
           cityCode,
         });
 
-      const hotelIds = hotelsRes.data.map((h: any) => h.hotelId);
+      const hotelIds = hotelsRes.data.map((h: AmadeusHotel) => h.hotelId);
       console.log("total hotels", hotelIds.length);
 
       if (hotelIds.length === 0) return [];
@@ -102,7 +122,7 @@ class HotelService {
         console.log("loopchunk length", chunk.length);
         console.log("loopchunk", chunk);
 
-        // @ts-ignore
+        // @ts-expect-error - old version of amadeus type
         const offersRes = await this.client.shopping.hotelOffersSearch.get({
           hotelIds: chunk.join(","),
           checkInDate: checkIn,
@@ -117,27 +137,45 @@ class HotelService {
       }
 
       // ✅ filter hotels with valid offers
-      const offers = batches.filter((h: any) => h.offers?.length > 0);
+      const offers = batches.filter((h: AmadeusHotelOffer) => h.offers?.length > 0);
       console.log("offers after filter", offers);
 
-      const availableHotels = hotelsRes.data
-        .map((hotel: any) => {
-          const offer = offers.find(
-            (o: any) => o.hotel.hotelId === hotel.hotelId
-          );
+      const availableHotels: HotelWithOffer[] = hotelsRes.data
+  .map((hotel: AmadeusHotel) => {
+    const offer = offers.find(
+      (o: AmadeusHotelOffer) => o.hotel.hotelId === hotel.hotelId
+    );
 
-          if (!offer || !offer.offers?.length) return null;
+    if (!offer || !offer.offers?.length) return null;
 
-          return {
-            ...hotel, // reference info (name, address, rating, etc.)
-            offer: offer.offers[0], // first available offer (you can also map all)
-          };
-        })
-        .filter(Boolean); // remove nulls
+    return {
+  ...hotel,
+  offer: offer.offers[0],
+} as unknown as HotelOffer;
+  })
+  .filter((hotel): hotel is HotelOffer => hotel !== null); // type guard
+
 
       return availableHotels;
-    } catch (err: any) {
-      console.error("Amadeus API Error:", err.response?.result || err);
+    } catch (err: unknown) {
+    // Narrow the error type
+    if (err instanceof Error) {
+    console.error("Amadeus Offer fetch error:", err.message);
+  }
+
+  // If it's an object with a `response` property (common in Axios-like errors)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { result?: unknown } }) === "object"
+  ) {
+    const responseResult = (err as { response?: { result?: unknown } }).response?.result;
+    console.error("Amadeus Offer fetch error:", responseResult || err);
+  }
+
+  // Fallback for anything else
+  console.error("Amadeus Offer fetch error:", err);
       return [];
     }
   }
@@ -146,13 +184,13 @@ class HotelService {
     try {
       console.log("hotelId", hotelId);
       const hotelNormalDetails =
-      // @ts-ignore
+      // @ts-expect-error - older version of amadeus types
         await this.client.referenceData.locations.hotels.byHotels.get({
           hotelIds: hotelId,
         });
 
       console.log("hotelNormalDetails", hotelNormalDetails);
-      // @ts-ignore
+      // @ts-expect-error - older version of amadeus types
 
       const offersRes = await this.client.shopping.hotelOffersSearch.get({
         hotelIds: hotelId,
@@ -163,10 +201,27 @@ class HotelService {
         ...hotelNormalDetails.data[0],
         offer: offersRes?.data[0]?.offers?.[0],
       };
-    } catch (err: any) {
-      console.error("Amadeus API Error:", err.response?.result || err);
-      return [];
-    }
+    } catch (err: unknown) {
+    // Narrow the error type
+    if (err instanceof Error) {
+    console.error("Amadeus Offer fetch error:", err.message);
+  }
+
+  // If it's an object with a `response` property (common in Axios-like errors)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { result?: unknown } }) === "object"
+  ) {
+    const responseResult = (err as { response?: { result?: unknown } }).response?.result;
+    console.error("Amadeus Offer fetch error:", responseResult || err);
+  }
+
+  // Fallback for anything else
+  console.error("Amadeus Offer fetch error:", err);
+    return [];
+  }
   }
 
   // 📍 Get hotels by lat/lon
@@ -192,7 +247,7 @@ class HotelService {
       hotels = hotels.slice(0, limit);
       console.log("hotelby geo", hotels);
 
-      const hotelIds = hotels.map((h: any) => h.hotelId);
+      const hotelIds = hotels.map((h: AmadeusHotel) => h.hotelId);
 
       const offersRes = await this.client.shopping.hotelOffers.get({
         hotelIds: hotelIds.join(","),
@@ -200,19 +255,36 @@ class HotelService {
 
       const offers = offersRes.data;
 
-      return hotels.map((hotel: any) => {
+      return hotels.map((hotel: AmadeusHotel) => {
         const offer = offers.find(
-          (o: any) => o.hotel.hotelId === hotel.hotelId
+          (o: AmadeusHotelOffer) => o.hotel.hotelId === hotel.hotelId
         );
         return {
           ...hotel,
           offer: offer?.offers?.[0],
         };
       });
-    } catch (err: any) {
-      console.error("Amadeus API Error:", err.response?.result || err);
-      throw err;
-    }
+    } catch (err: unknown) {
+    // Narrow the error type
+    if (err instanceof Error) {
+    console.error("Amadeus Offer fetch error:", err.message);
+  }
+
+  // If it's an object with a `response` property (common in Axios-like errors)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { result?: unknown } }) === "object"
+  ) {
+    const responseResult = (err as { response?: { result?: unknown } }).response?.result;
+    console.error("Amadeus Offer fetch error:", responseResult || err);
+  }
+
+  // Fallback for anything else
+  console.error("Amadeus Offer fetch error:", err);
+    return []
+  }
   }
 
   // 🏨 Get hotel details by ID
@@ -244,7 +316,7 @@ class HotelService {
         adults
       );
 
-      // @ts-ignore – Amadeus typings outdated
+      // @ts-expect-error – Amadeus typings outdated
       const res = await this.client.shopping.hotelOffersSearch.get({
         hotelIds: hotelId,
         checkInDate,
@@ -256,29 +328,71 @@ class HotelService {
       console.log("res", res);
 
       return res.data[0];
-    } catch (err: any) {
-      console.error("Amadeus API Error:", err.response?.result || err);
-      throw err;
-    }
+    } catch (err: unknown) {
+    // Narrow the error type
+    if (err instanceof Error) {
+    console.error("Amadeus Offer fetch error:", err.message);
+    throw err; // rethrow
+  }
+
+  // If it's an object with a `response` property (common in Axios-like errors)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { result?: unknown } }) === "object"
+  ) {
+    const responseResult = (err as { response?: { result?: unknown } }).response?.result;
+    console.error("Amadeus Offer fetch error:", responseResult || err);
+    throw new Error(
+      responseResult ? JSON.stringify(responseResult) : "Unknown error occurred"
+    );
+  }
+
+  // Fallback for anything else
+  console.error("Amadeus Offer fetch error:", err);
+  throw new Error("Unknown error occurred");
+  }
   }
 
   async getCitySuggestions(keyword: string) {
     try {
-      // @ts-ignore - typings outdated
+      // @ts-expect-error - typings outdated
       const response = await this.client.referenceData.locations.get({
         keyword,
         subType: "CITY",
       });
 
-      return response.data.map((item: any) => ({
+      return response.data.map((item: { name: string, iataCode: string, address: { countryCode: string}}) => ({
         name: item.name, // City name
         cityCode: item.iataCode, // City code (IATA)
         country: item.address.countryCode,
       }));
-    } catch (err: any) {
-      console.error("City fetch error:", err.response?.result || err);
-      return [];
-    }
+    } catch (err: unknown) {
+    // Narrow the error type
+    if (err instanceof Error) {
+    console.error("Amadeus Offer fetch error:", err.message);
+    throw err; // rethrow
+  }
+
+  // If it's an object with a `response` property (common in Axios-like errors)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { result?: unknown } }) === "object"
+  ) {
+    const responseResult = (err as { response?: { result?: unknown } }).response?.result;
+    console.error("Amadeus Offer fetch error:", responseResult || err);
+    throw new Error(
+      responseResult ? JSON.stringify(responseResult) : "Unknown error occurred"
+    );
+  }
+
+  // Fallback for anything else
+  console.error("Amadeus Offer fetch error:", err);
+  throw new Error("Unknown error occurred");
+  }
   }
 
   // services/HotelService.ts
@@ -289,15 +403,36 @@ class HotelService {
       console.log("Offer data id", offerId, typeof offerId);
 
       console.log("Offer data", this.client.shopping);
-      // @ts-ignore – Amadeus typings outdated
+      // @ts-expect-error – Amadeus typings outdated
       const res = await this.client.shopping.hotelOfferSearch(offerId).get();
 
       // res.data will be the offer object
       return res.data;
-    } catch (err: any) {
-      console.error("Amadeus Offer fetch error:", err.response?.result || err);
-      throw err;
-    }
+    } catch (err: unknown) {
+    // Narrow the error type
+    if (err instanceof Error) {
+    console.error("Amadeus Offer fetch error:", err.message);
+    throw err; // rethrow
+  }
+
+  // If it's an object with a `response` property (common in Axios-like errors)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof (err as { response?: { result?: unknown } }) === "object"
+  ) {
+    const responseResult = (err as { response?: { result?: unknown } }).response?.result;
+    console.error("Amadeus Offer fetch error:", responseResult || err);
+    throw new Error(
+      responseResult ? JSON.stringify(responseResult) : "Unknown error occurred"
+    );
+  }
+
+  // Fallback for anything else
+  console.error("Amadeus Offer fetch error:", err);
+  throw new Error("Unknown error occurred");
+  }
   }
 }
 

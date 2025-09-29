@@ -1,10 +1,10 @@
+
 import AboutProfileMain from "@/components/profilePageMainComponent/AboutProfileMain"
 
-
-function page() {
+function AboutPage() {
   return (
-    <AboutProfileMain />
+      <AboutProfileMain />
   )
-}
+} 
 
-export default page
+export default AboutPage

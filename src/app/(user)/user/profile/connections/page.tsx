@@ -1,10 +1,10 @@
+
 import ConnectionsProfileMain from "@/components/profilePageMainComponent/ConnectionsProfileMain"
 
-
-function page() {
+function ConnectionPage() {
   return (
     <ConnectionsProfileMain />
   )
 }
 
-export default page
+export default ConnectionPage

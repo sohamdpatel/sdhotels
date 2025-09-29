@@ -5,11 +5,6 @@ import SearchBar from "./SearchBar";
 import { Hotel } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-type SearchBarWrapperProps = {
-  expandOnScroll?: boolean; // default true
-  showWrapper?: boolean;    // default true
-};
-
 export default function SearchBarWrapper() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);

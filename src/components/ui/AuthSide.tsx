@@ -2,7 +2,7 @@
 "use client";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Menu, User, LogIn,UserRoundPlus, Heart } from "lucide-react";
+import { Menu, User, LogIn,UserRoundPlus } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { selectAuth, logout } from "@/redux/slices/authSlice";
 import Link from "next/link";

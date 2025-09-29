@@ -1,50 +1,35 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { Button } from "@/components/ui/button";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { differenceInDays, format } from "date-fns";
-import { Search, Plus, Minus, Loader2 } from "lucide-react";
+import { Plus, Minus, Loader2 } from "lucide-react";
 import { DateRange } from "react-day-picker";
-import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Controller, useForm } from "react-hook-form";
 import { hotelService } from "@/data-services/hotelData";
 import { debounce } from "@/lib/debounce";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { off } from "process";
 import { useHotelBookingStore } from "@/hooks/zustandStore.hooks";
 
-function useDebouncedEffect(effect: () => void, deps: any[], delay: number) {
+function useDebouncedEffect(effect: () => void, deps: [{ from: Date | undefined; to: Date | undefined; }, string], delay: number) {
   useEffect(() => {
     const handler = setTimeout(() => effect(), delay);
     return () => clearTimeout(handler);
-  }, [...deps, delay]);
+  }, [...deps, delay, effect]);
 }
 
 export default function HotelDetailsPriceBox({
   hotelDetails,
-  // guests,
-  // adults,
-  // childrens,
 }: {
   hotelDetails: HotelOffer;
-  // guests: number;
-  // adults: number;
-  // childrens: number;
 }) {
   const searchParams = useSearchParams();
 
@@ -103,7 +88,7 @@ const setHotelDetails = useHotelBookingStore((state) => state.setHotelDetails);
   useDebouncedEffect(() => {
   if (!dateRange?.from || !dateRange?.to) return;
 
-  if (dateRange?.from.getTime() === new Date(hotelDetails?.offer?.checkInDate!).getTime() && dateRange?.to.getTime() === new Date(hotelDetails?.offer?.checkOutDate!).getTime()) {
+  if (dateRange?.from.getTime() === new Date(hotelDetails.offer!.checkInDate).getTime() && dateRange?.to.getTime() === new Date(hotelDetails.offer!.checkOutDate).getTime()) {
     return;
   };
 
@@ -173,11 +158,11 @@ const debouncedRecalculatePrice = useMemo(
       },
       1000 // debounce delay
     ),
-  [offer]
+  [offer, guestss]
 );
 const debouncedUpdateUrl = useMemo(
   () =>
-    debounce((dateRange: DateRange | undefined, guests: any) => {
+    debounce((dateRange: DateRange | undefined, guests: {adults: number, childrens: number}) => {
       const params = new URLSearchParams(searchParams.toString());
 
       if (dateRange?.from)
@@ -200,13 +185,13 @@ const debouncedUpdateUrl = useMemo(
   setLoading(true); // show spinner immediately
 
   debouncedRecalculatePrice(guestss); 
-}, [guestss]);
+}, [guestss,debouncedRecalculatePrice,guestss]);
 
   useEffect(()=>{
-    if (guestss.adults=== adultsParam && guestss.childrens === childrensParam && dateRange?.from!.getTime() === new Date(hotelDetails?.offer?.checkInDate!).getTime() && dateRange?.to!.getTime() === new Date(hotelDetails?.offer?.checkOutDate!).getTime()) return;
+    if (guestss.adults=== adultsParam && guestss.childrens === childrensParam && dateRange.from!.getTime() === new Date(hotelDetails.offer!.checkInDate).getTime() && dateRange.to!.getTime() === new Date(hotelDetails.offer!.checkOutDate).getTime()) return;
     console.log("urlupdater effect run")
   debouncedUpdateUrl(dateRange,guestss); 
-  },[dateRange,guestss])
+  },[dateRange,guestss,debouncedUpdateUrl,adultsParam,childrensParam,hotelDetails])
 
 
   const nights =

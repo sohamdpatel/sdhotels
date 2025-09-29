@@ -1,6 +1,5 @@
 
 
-import HotelsSliderSkeleton from "@/components/skeletons/HotelSiderSckeleton";
 import { Loader2 } from "lucide-react";
 
 export default function Loading() {

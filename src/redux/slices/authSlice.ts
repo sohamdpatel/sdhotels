@@ -3,8 +3,8 @@ import { RootState } from "../store";
 
 // Mock API calls (replace with your real API calls)
 const fakeApi = {
-  login: async (credentials: { email: string; password: string }) => {
-    return new Promise<{ token: string; user: {id: number, name: string, email: string} }>((resolve) =>
+  login: async (credentials: LoginCredentials): Promise<AuthResponsee> => {
+    return new Promise<AuthResponsee>((resolve) =>
       setTimeout(
         () =>
           resolve({
@@ -15,8 +15,8 @@ const fakeApi = {
       )
     );
   },
-  signup: async (data: { name: string; email: string; password: string }) => {
-    return new Promise<{ token: string; user: any }>((resolve) =>
+  signup: async (data: SignupDataa): Promise<AuthResponsee> => {
+    return new Promise<AuthResponsee>((resolve) =>
       setTimeout(
         () =>
           resolve({
@@ -29,47 +29,48 @@ const fakeApi = {
   },
 };
 
+
 // -------------------- Async Thunks --------------------
-export const login = createAsyncThunk(
+export const login = createAsyncThunk<AuthResponsee, LoginCredentials, { rejectValue: string }>(
   "auth/login",
-  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+  async (credentials, { rejectWithValue }) => {
     try {
-      const res = await fakeApi.login(credentials);
-      return res;
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Login failed");
+      return await fakeApi.login(credentials);
+    } catch (err) {
+      console.error(err)
+      return rejectWithValue("Login failed");
     }
   }
 );
 
-export const signup = createAsyncThunk(
+export const signup = createAsyncThunk<AuthResponsee, SignupDataa, { rejectValue: string }>(
   "auth/signup",
-  async (data: { name: string; email: string; password: string }, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await fakeApi.signup(data);
-      return res;
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Signup failed");
+      return await fakeApi.signup(data);
+    } catch (err) {
+      console.error(err)
+      return rejectWithValue("Signup failed");
     }
   }
 );
 
-const loadFromLocalStorage = () => {
+const loadFromLocalStorage = (): { token: string | null; user: Userr | null } => {
   try {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
     return {
       token: token || null,
-      user: user ? JSON.parse(user) : null,
+      user: user ? (JSON.parse(user) as Userr) : null,
     };
-  } catch (err) {
+  } catch {
     return { token: null, user: null };
   }
 };
 
 // -------------------- Slice -------------------- 
 type AuthState = {
-  user: any | null;
+  user: Userr | null;
   token: string | null;
   loading: boolean;
   error: string | null;
@@ -91,48 +92,48 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem("token"); // optional persistence
-      localStorage.removeItem("user"); // optional persistence
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
-    // Login
-    builder.addCase(login.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(login.fulfilled, (state, action: PayloadAction<any>) => {
-      state.loading = false;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      localStorage.setItem("token", action.payload.token);
-      localStorage.setItem("user", JSON.stringify(action.payload.user));
-      
-    });
-    builder.addCase(login.rejected, (state, action: any) => {
-      state.loading = false;
-      state.error = action.payload || "Login failed";
-    });
-
-    // Signup
-    builder.addCase(signup.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(signup.fulfilled, (state, action: PayloadAction<any>) => {
-      state.loading = false;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      localStorage.setItem("token", action.payload.token);
-      localStorage.setItem("user", JSON.stringify(action.payload.user));
-    });
-    builder.addCase(signup.rejected, (state, action: any) => {
-      state.loading = false;
-      state.error = action.payload || "Signup failed";
-    });
+    builder
+      // login
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action: PayloadAction<AuthResponsee>) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Login failed";
+      })
+      // signup
+      .addCase(signup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signup.fulfilled, (state, action: PayloadAction<AuthResponsee>) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+      })
+      .addCase(signup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Signup failed";
+      });
   },
 });
 
 export const { logout } = authSlice.actions;
 export const selectAuth = (state: RootState) => state.auth;
 export default authSlice.reducer;
+

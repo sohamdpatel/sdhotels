@@ -1,8 +1,12 @@
 // utils/debounce.ts
-export function debounce<F extends (...args: any[]) => void>(func: F, delay: number) {
-  let timer: NodeJS.Timeout;
-  return (...args: Parameters<F>) => {
-    clearTimeout(timer);
+export function debounce<Args extends unknown[]>(
+  func: (...args: Args) => void,
+  delay: number
+) {
+  let timer: ReturnType<typeof setTimeout>; // works in both Node & browser
+
+  return (...args: Args) => {
+    if (timer) clearTimeout(timer);
     timer = setTimeout(() => func(...args), delay);
   };
 }

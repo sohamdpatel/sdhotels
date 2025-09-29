@@ -8,7 +8,7 @@ import Modal from "./Modal";
 import { useWishlist } from "@/hooks/wishlist.hooks";
 import { cn } from "@/lib/utils";
 
-export default function HotelCardLikeButton({ hotel, className }: { hotel: HotelOffer, className?: string }) {
+export default function HotelCardLikeButton({ hotel, className }: { hotel: HotelWithOffer, className?: string }) {
   const { user } = useAppSelector(selectAuth);
   const router = useRouter();
   const { addHotel, removeHotel, findFolderByHotelId, folders, createFolder } = useWishlist();
@@ -22,7 +22,7 @@ export default function HotelCardLikeButton({ hotel, className }: { hotel: Hotel
     setMounted(true);
     const folder = findFolderByHotelId(hotel.hotelId);
     if (folder) setLiked(true);
-  }, [hotel.hotelId]);
+  }, [hotel.hotelId,findFolderByHotelId]);
 
   const handleOnClick = (e: React.MouseEvent) => {
     e.preventDefault();

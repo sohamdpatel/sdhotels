@@ -103,9 +103,9 @@ if (!mounted) return <HotelsSliderSkeleton />;
         }}
         onBeforeInit={(swiper) => {
           // Attach navigation refs before init
-          // @ts-ignore
+          // @ts-expect-error because of its throw error some time
           swiper.params.navigation.prevEl = prevRef.current;
-          // @ts-ignore
+          // @ts-expect-error because of its throw error some time
           swiper.params.navigation.nextEl = nextRef.current;
         }}
         onSlideChange={(swiper) => {
@@ -126,9 +126,9 @@ if (!mounted) return <HotelsSliderSkeleton />;
           1536: { slidesPerView: slidesPerView["2xl"] ?? 6, spaceBetween },
         }}
       >
-        {items.map((item: any, i) => (
-          <SwiperSlide key={item?.hotelId || i}>
-            <HotelCard hotel={item} />
+        {items.map((item, i) => (
+          <SwiperSlide key={ i}>
+            <HotelCard hotel={item as HotelOffer} />
           </SwiperSlide>
         ))}
       </Swiper>

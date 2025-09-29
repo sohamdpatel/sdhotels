@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useLocalStorage } from "./localStorage.hooks";
 
-type WishlistFolders = Record<string, HotelOffer[]>;
+type WishlistFolders = Record<string, HotelWithOffer[]>;
 
 export function useWishlist() {
   const [folders, setFolders] = useLocalStorage<WishlistFolders>(
@@ -12,7 +12,7 @@ export function useWishlist() {
   const normalizeId = (id: string | number) => String(id);
 
   const addHotel = useCallback(
-    (folderName: string, hotel: HotelOffer): boolean => {
+    (folderName: string, hotel: HotelWithOffer): boolean => {
       if (!folderName || !hotel || hotel.hotelId === undefined) return false;
 
       setFolders((prev = {}) => {

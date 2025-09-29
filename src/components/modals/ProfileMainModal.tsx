@@ -11,9 +11,8 @@ interface Props {
 }
 
 export default function ProfileMainModal({ children, onClose, open }: Props) {
-  if (typeof window === "undefined") return null; // for SSR
   useEffect (() => {
-      // lock background scroll
+    // lock background scroll
       document.body.style.overflow = 'hidden';
       console.log("modal mount");
       
@@ -22,8 +21,9 @@ export default function ProfileMainModal({ children, onClose, open }: Props) {
         document.body.style.overflow = '';
       console.log("modal unmount");
   
-      };
+    };
     }, []);
+    if (typeof window === "undefined") return null; // for SSR
 
   return ReactDOM.createPortal(
     <AnimatePresence>

@@ -34,11 +34,3 @@ export function useHotelById(hotelId: string) {
   });
 }
 
-// 💰 Get hotel offers
-export function useHotelOffers(hotelIds: string[]) {
-  return useQuery({
-    queryKey: ["hotelOffers", hotelIds],
-    queryFn: () => hotelService.getHotelOffers(hotelId),
-    enabled: !!hotelIds,
-  });
-} 
