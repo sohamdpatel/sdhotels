@@ -23,7 +23,7 @@ function useDebouncedEffect(effect: () => void, deps: [{ from: Date | undefined;
   useEffect(() => {
     const handler = setTimeout(() => effect(), delay);
     return () => clearTimeout(handler);
-  }, [...deps, delay, effect]);
+  }, [...deps, delay]);
 }
 
 export default function HotelDetailsPriceBox({
@@ -185,13 +185,13 @@ const debouncedUpdateUrl = useMemo(
   setLoading(true); // show spinner immediately
 
   debouncedRecalculatePrice(guestss); 
-}, [guestss,debouncedRecalculatePrice,guestss]);
+}, [guestss]);
 
   useEffect(()=>{
     if (guestss.adults=== adultsParam && guestss.childrens === childrensParam && dateRange.from!.getTime() === new Date(hotelDetails.offer!.checkInDate).getTime() && dateRange.to!.getTime() === new Date(hotelDetails.offer!.checkOutDate).getTime()) return;
     console.log("urlupdater effect run")
   debouncedUpdateUrl(dateRange,guestss); 
-  },[dateRange,guestss,debouncedUpdateUrl,adultsParam,childrensParam,hotelDetails])
+  },[dateRange,guestss])
 
 
   const nights =
